@@ -60,8 +60,8 @@ quoted paragraph etc.
 
 var easyLog = function (){
   function applyDefaultCSS(){
-    var ss = document.createElement("style");
-    ss.innerHTML = ' \
+    var css = document.createElement("style");
+    css.innerHTML = ' \
       * { line-height: 150%; } \
       body{ width: 76%; margin-left: 20%; padding: 2%; padding-top: 0; margin-top: 0; } \
       pre.indentBlock {  margin: 1ex 0 1ex 4ex;  padding: 0.5ex; \
@@ -81,7 +81,7 @@ var easyLog = function (){
       #toc ul { padding-left: 2ex; } \
     ';
   
-    document.getElementsByTagName("head")[0].appendChild(ss);
+    document.getElementsByTagName("head")[0].appendChild(css);
   }
 
 	var indentLine, indentLineOld;
