@@ -1,4 +1,4 @@
-// log.js
+// anbt_easydoc.js
 
 /* Template
 
@@ -6,8 +6,8 @@
 <head>
   <link  href="prettify.css" type="text/css" rel="stylesheet">
   <script type="text/javascript" src="prettify.js"></script>
-  <script type="text/javascript" src="easydoc.js"></script>
-  <title>easydoc.js</title>
+  <script type="text/javascript" src="anbt_easydoc.js"></script>
+  <title>anbt_easydoc.js</title>
 </head>
 <body onload="prettyPrint()">
 
@@ -92,7 +92,6 @@ var easyLog = function (){
 	//console.log(days);
 
 	for( a=0; a<days.length; a++ ){
-	//for(a=0; a<1 ;a++){
 	  d = days[a];
 	  var result = '';
 	  
@@ -102,9 +101,7 @@ var easyLog = function (){
 	  for( b=0; b<lines.length; b++){
 	  	l = lines[b]
 
-			// 行頭のタブ
-      //if( l.match( /^ / ) ){ indentLine = true;}else{indentLine = false;}
-      if(l.match(/^ /)){
+      if(l.match(/^\s/)){
         indentLine = true;
       }else{
         indentLine = false;
@@ -117,8 +114,7 @@ var easyLog = function (){
 				result += '</pre>'
 			}
 
-			if( indentLine ){ l = l.replace( /^\t/, '' ); }
-
+			if( indentLine ){ l = l.replace( /^\s/, '' ); }
 
 			if(l.match(/^----/)){ 
 			  l = "<hr />"
@@ -128,7 +124,7 @@ var easyLog = function (){
 				l = '<img src="' + RegExp.$1 + '" />'
 			}
 
-			if(        l.match( /^q\{-*$/ ) ){
+			if(       l.match( /^q\{-*$/ ) ){
 				l = "<blockquote>";
 			}else if( l.match( /^\}q-*$/ ) ){
 				l = "</blockquote>";
@@ -154,7 +150,6 @@ var easyLog = function (){
         )
       }
 
-
 			result += l
 			result += "\n"
 			
@@ -178,9 +173,6 @@ var easyLog = function (){
 	for(var a=0; a<tocStack.length; a++){
 	  levelNow = tocStack[a].level;
 	  
-	  //console.log(levelOld);
-	  //console.log(levelNow);
-	  
 	  if(levelOld < levelNow){
 	    for(var b=levelNow - levelOld; b>0; b--){
     	  result += "<ul>";
@@ -196,14 +188,11 @@ var easyLog = function (){
 	  result += tocStack[a].title;
 	  result += '</a></li>\n';
 	  
-	  //console.log(result);
-	  
 	  levelOld = levelNow;
 	}
 	for(var b=levelOld; b>0; b--){
     result += "</ul>\n";
   }
-	//console.log(result);
 	
 	toc.innerHTML = result;
 	
