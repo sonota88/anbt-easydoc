@@ -7,7 +7,7 @@
   <link  href="prettify.css" type="text/css" rel="stylesheet">
   <script type="text/javascript" src="prettify.js"></script>
   <script type="text/javascript" src="anbt_easydoc.js"></script>
-  <title>anbt_easydoc.js</title>
+  <title>document title</title>
 </head>
 <body onload="prettyPrint()">
 
@@ -19,7 +19,8 @@
 
 */
 
-/*
+/* Markup example:
+
 = Heading / 見出し
 
 = h1
@@ -80,8 +81,7 @@ var easyLog = function (){
       #toc ul { padding-left: 2ex; } \
     ';
   
-    var bb = document.getElementsByTagName("head")[0];
-    bb.appendChild(ss);
+    document.getElementsByTagName("head")[0].appendChild(ss);
   }
 
 	var indentLine, indentLineOld;
