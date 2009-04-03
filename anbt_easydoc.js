@@ -69,18 +69,19 @@ var easyLog = function (){
         background-color: #f0f8f8;  border: solid 1px #a0b8b8; line-height: 120%; \
       } \
       p.document_title { font-size: 150%; font-weight: bold; background-color: #068; color: #fff; margin: 0; margin-bottom: 1ex; padding: 2ex; text-align: center; } \
-      h1, h2, h3, h4, h5, h6, pre { margin: 0; } \
-      h1 {  text-align: center;  border: solid #444;  border-width: 0.3ex 0;  padding: 2ex; } \
-      h2 {  background-color: #ddd;  border: solid 2px #bbb;  padding: 1ex; } \
-      h3 {  background-color: #eee;  padding: 1ex; } \
-      h4 { border: solid #a00; border-width: 0 0 1px 1ex  ; } \
-      h5 { border: solid #a00; border-width: 0 0 0   1ex  ; } \
-      h6 { border: solid #6a0; border-width: 0 0 0   0.5ex; } \
+      h1, h2, h3, h4, h5, h6, pre { margin: 0; padding: 0 1ex; } \
+      h1 { font-size: 140%; text-align: center;  border: solid #444;  border-width: 0.3ex 0;  padding: 2ex; } \
+      h2 { font-size: 130%; background-color: #ddd;  border: solid 2px #bbb;  padding: 1ex; } \
+      h3 { font-size: 120%; background-color: #eee;  padding: 1ex; } \
+      h4 { font-size: 110%; border: solid #a00; border-width: 0 0 1px 1ex  ; } \
+      h5 { font-size: 105%; border: solid #a00; border-width: 0 0 0   1ex  ; } \
+      h6 { font-size: 100%; border: solid #6a0; border-width: 0 0 0   0.5ex; } \
       #toc { font-size: 75%; position: fixed; top: 0;left: 0; width: 18%; height: 100%; \
         background-color: #eee; border: solid 1px #ccc; overflow: auto; padding: 1%; \
       } \
       #toc ul { padding-left: 2ex; } \
-      div.outline{ padding: 0 0 0 1ex; } \
+      blockquote { border: solid 2px #d80; padding: 0 1ex; } \
+      div.outline{ padding: 0 0 0 2ex; } \
     ';
   
     document.getElementsByTagName("head")[0].appendChild(css);
@@ -88,7 +89,8 @@ var easyLog = function (){
 
 
   function headingTag(hLevel, hId, hTitle){
-    return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hLevel +': '+ hTitle + '</h' + hLevel + '>';
+    //return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hLevel +': '+ hTitle + '</h' + hLevel + '>';
+    return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hTitle + '</h' + hLevel + '>';
   }
 
 
@@ -220,7 +222,8 @@ var easyLog = function (){
   	  }
 	  }
 	  
-	  result += '<li><a href="#' + tocStack[a].id + '">' + levelNow + ": ";
+	  //result += '<li><a href="#' + tocStack[a].id + '">' + levelNow + ": ";
+	  result += '<li><a href="#' + tocStack[a].id + '">';
 	  result += tocStack[a].title;
 	  result += '</a></li>\n';
 	  
