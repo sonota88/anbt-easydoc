@@ -181,9 +181,11 @@ var easyLog = function (){
         outlineLevel = hLevel;
       }
 
+			if(status != "heading"){ 
+			  result += l;
+			}
 			if(status != "heading" && status != "hr"){
-  			result += l
-			  result += "\n"
+  		  result += "\n"; 
 			}
 			
 			indentLineOld = indentLine;
