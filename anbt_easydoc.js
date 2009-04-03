@@ -63,7 +63,8 @@ var easyLog = function (){
     var css = document.createElement("style");
     css.innerHTML = ' \
       * { line-height: 150%; } \
-      body{ width: 76%; margin-left: 20%; padding: 2%; padding-top: 0; margin-top: 0; } \
+      //body{ width: 76%; margin-left: 20%; padding: 2%; padding-top: 0; margin-top: 0; } \
+      body{ width: 80%; margin-left: 20%; padding: 0; padding-top: 0; margin-top: 0; } \
       pre.indentBlock {  margin: 1ex 0 1ex 4ex;  padding: 0.5ex; \
         background-color: #f0f8f8;  border: solid 1px #a0b8b8; line-height: 120%; \
       } \
@@ -79,12 +80,23 @@ var easyLog = function (){
         background-color: #eee; border: solid 1px #ccc; overflow: auto; padding: 1%; \
       } \
       #toc ul { padding-left: 2ex; } \
+      div.outline{ padding: 0 0 0 1ex; } \
     ';
   
     document.getElementsByTagName("head")[0].appendChild(css);
   }
 
+
+  function headingTag(hLevel, hId, hTitle){
+    return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hLevel +': '+ hTitle + '</h' + hLevel + '>';
+  }
+
+
+  /////////////////////////////////////////////////////////////////////////////////
 	var indentLine, indentLineOld;
+	var outlineLevel = 0;
+	var outlineBeginTag = '<div class="outline">';
+	var outlineEndTag   = '</div>';
 
 	var tocStack = [];
 
@@ -100,6 +112,7 @@ var easyLog = function (){
 	  lines = d.innerHTML.split( "\n" )
 	  for( b=0; b<lines.length; b++){
 	  	l = lines[b]
+      status = null;
 
       if(l.match(/^\s/)){
         indentLine = true;
@@ -118,6 +131,7 @@ var easyLog = function (){
 
 			if(l.match(/^----/)){ 
 			  l = "<hr />"
+			  status = "hr";
 			}else if( l.match( /^http\:\/\// ) ){
 				l = "<a href='"+ l +"'>"+ l +"</a>"
 			}else if( l.match( /^img:(.+)$/ ) ){
@@ -132,36 +146,58 @@ var easyLog = function (){
 
       var hLevel = null;
       var hTitle = null;
-      if      (l.match(/^======(.+)$/)){ hLevel = 6; hTitle = RegExp.$1;
-      }else if(l.match(/^=====(.+)$/ )){ hLevel = 5; hTitle = RegExp.$1;
-      }else if(l.match(/^====(.+)$/  )){ hLevel = 4; hTitle = RegExp.$1;
-      }else if(l.match(/^===(.+)$/   )){ hLevel = 3; hTitle = RegExp.$1;
-      }else if(l.match(/^==(.+)$/    )){ hLevel = 2; hTitle = RegExp.$1;
-      }else if(l.match(/^=(.+)$/     )){ hLevel = 1; hTitle = RegExp.$1;
+      if      (l.match(/^======(.+?)=*$/)){ hLevel = 6; hTitle = RegExp.$1;
+      }else if(l.match(/^=====(.+?)=*$/ )){ hLevel = 5; hTitle = RegExp.$1;
+      }else if(l.match(/^====(.+?)=*$/  )){ hLevel = 4; hTitle = RegExp.$1;
+      }else if(l.match(/^===(.+?)=*$/   )){ hLevel = 3; hTitle = RegExp.$1;
+      }else if(l.match(/^==(.+?)=*$/    )){ hLevel = 2; hTitle = RegExp.$1;
+      }else if(l.match(/^=(.+?)=*$/     )){ hLevel = 1; hTitle = RegExp.$1;
       }
       if(hLevel){
         hId = "heading" + tocStack.length;
-        l = '<h' + hLevel + ' id=' + hId + '>'
-        l += '<a href="#' + hId + '">*</a>'
-        l += hTitle
-        l += '</h' + hLevel + '>\n'
+        if(outlineLevel < hLevel){
+          for(var c=( - outlineLevel + hLevel); c>0; c--){
+            result += outlineBeginTag;
+            result += headingTag(hLevel, hId, hTitle);
+          }
+        }else if(outlineLevel > hLevel){
+          for(var c=(outlineLevel - hLevel); c>0; c--){
+            result += outlineEndTag;
+          }
+          result += outlineBeginTag;
+          result += headingTag(hLevel, hId, hTitle);
+        }else if(outlineLevel == hLevel){
+          result += outlineEndTag;
+          result += outlineBeginTag;
+          result += headingTag(hLevel, hId, hTitle);
+        }
+
         tocStack.push(
           { "level": hLevel, "title": hTitle, "id": hId }
         )
+        status = "heading";
+        outlineLevel = hLevel;
       }
 
-			result += l
-			result += "\n"
+			if(status != "heading" && status != "hr"){
+  			result += l
+			  result += "\n"
+			}
 			
 			indentLineOld = indentLine;
 	  }
+		for(var b=outlineLevel; b>=0; b--){
+		  result += '</div>';
+		}
+
+
 		//  alert( result );
 	  d.style.display = "none";
 	  formatted = document.createElement("pre");
 	  formatted.innerHTML = result;
 	  document.getElementsByTagName("body")[0].insertBefore(formatted, null);
 	  
-	} // end fragment
+	} // end fragment(lines)
 	
 	// TOC
 	var toc = document.createElement("div");
@@ -200,7 +236,7 @@ var easyLog = function (){
 	bodyElem.insertBefore(toc, bodyElem.firstChild);
 	
 	// Page title
-	console.log(document.title);
+	//console.log(document.title);
 	var titleP = document.createElement("p");
 	titleP.setAttribute("class", "document_title");
 	titleP.innerHTML = document.title;
