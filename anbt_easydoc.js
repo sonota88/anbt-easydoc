@@ -198,6 +198,7 @@ var easyLog = function (){
 		//  alert( result );
 	  d.style.display = "none";
 	  formatted = document.createElement("pre");
+	  formatted.id = "formatted_body";
 	  formatted.innerHTML = result;
 	  document.getElementsByTagName("body")[0].insertBefore(formatted, null);
 	  
