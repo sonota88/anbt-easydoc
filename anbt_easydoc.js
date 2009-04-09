@@ -102,107 +102,101 @@ var easyLog = function (){
 
 	var tocStack = [];
 
-	var days = document.getElementsByName("logFragment")
+	var content = document.getElementsByName("content")[0];
 	//console.log(days);
 
-	for( a=0; a<days.length; a++ ){
-	  d = days[a];
-	  var result = '';
-	  
-	  // 行ごとに処理
-	  var lines = [];
-	  lines = d.innerHTML.split( "\n" )
-	  for( b=0; b<lines.length; b++){
-	  	l = lines[b]
-      status = null;
+  // 行ごとに処理
+  var lines = [];
+  lines = content.innerHTML.split( "\n" )
+  for( b=0; b<lines.length; b++){
+    l = lines[b]
+    status = null;
 
-      if(l.match(/^\s/)){
-        indentLine = true;
-      }else{
-        indentLine = false;
-      }
-      
-      if( indentLineOld == false && indentLine == true ){
-				result += '<pre class="indentBlock prettyprint">'
-			}
-			if( indentLineOld == true && indentLine == false ){
-				result += '</pre>'
-			}
+    if(l.match(/^\s/)){
+      indentLine = true;
+    }else{
+      indentLine = false;
+    }
+    
+    if( indentLineOld == false && indentLine == true ){
+      result += '<pre class="indentBlock prettyprint">'
+    }
+    if( indentLineOld == true && indentLine == false ){
+      result += '</pre>'
+    }
 
-			if( indentLine ){ l = l.replace( /^\s/, '' ); }
+    if( indentLine ){ l = l.replace( /^\s/, '' ); }
 
-			if(l.match(/^----/)){ 
-			  l = "<hr />"
-			  status = "hr";
-			}else if( l.match( /^https?\:\/\// ) ){
-				l = "<a href='"+ l +"'>"+ l +"</a>"
-			}else if( l.match( /^img:(.+)$/ ) ){
-				l = '<img src="' + RegExp.$1 + '" />'
-			}
+    if(l.match(/^----/)){ 
+      l = "<hr />"
+      status = "hr";
+    }else if( l.match( /^https?\:\/\// ) ){
+      l = "<a href='"+ l +"'>"+ l +"</a>"
+    }else if( l.match( /^img:(.+)$/ ) ){
+      l = '<img src="' + RegExp.$1 + '" />'
+    }
 
-			if(       l.match( /^q\{-*$/ ) ){
-				l = "<blockquote>";
-			}else if( l.match( /^\}q-*$/ ) ){
-				l = "</blockquote>";
-      }
+    if(       l.match( /^q\{-*$/ ) ){
+      l = "<blockquote>";
+    }else if( l.match( /^\}q-*$/ ) ){
+      l = "</blockquote>";
+    }
 
-      var hLevel = null;
-      var hTitle = null;
-      if      (l.match(/^======(.+?)=*$/)){ hLevel = 6; hTitle = RegExp.$1;
-      }else if(l.match(/^=====(.+?)=*$/ )){ hLevel = 5; hTitle = RegExp.$1;
-      }else if(l.match(/^====(.+?)=*$/  )){ hLevel = 4; hTitle = RegExp.$1;
-      }else if(l.match(/^===(.+?)=*$/   )){ hLevel = 3; hTitle = RegExp.$1;
-      }else if(l.match(/^==(.+?)=*$/    )){ hLevel = 2; hTitle = RegExp.$1;
-      }else if(l.match(/^=(.+?)=*$/     )){ hLevel = 1; hTitle = RegExp.$1;
-      }
-      if(hLevel){
-        hId = "heading" + tocStack.length;
-        if(outlineLevel < hLevel){
-          for(var c=( - outlineLevel + hLevel); c>0; c--){
-            result += outlineBeginTag;
-            result += headingTag(hLevel, hId, hTitle);
-          }
-        }else if(outlineLevel > hLevel){
-          for(var c=(outlineLevel - hLevel); c>0; c--){
-            result += outlineEndTag;
-          }
-          result += outlineBeginTag;
-          result += headingTag(hLevel, hId, hTitle);
-        }else if(outlineLevel == hLevel){
-          result += outlineEndTag;
+    var hLevel = null;
+    var hTitle = null;
+    if      (l.match(/^======(.+?)=*$/)){ hLevel = 6; hTitle = RegExp.$1;
+    }else if(l.match(/^=====(.+?)=*$/ )){ hLevel = 5; hTitle = RegExp.$1;
+    }else if(l.match(/^====(.+?)=*$/  )){ hLevel = 4; hTitle = RegExp.$1;
+    }else if(l.match(/^===(.+?)=*$/   )){ hLevel = 3; hTitle = RegExp.$1;
+    }else if(l.match(/^==(.+?)=*$/    )){ hLevel = 2; hTitle = RegExp.$1;
+    }else if(l.match(/^=(.+?)=*$/     )){ hLevel = 1; hTitle = RegExp.$1;
+    }
+    if(hLevel){
+      hId = "heading" + tocStack.length;
+      if(outlineLevel < hLevel){
+        for(var c=( - outlineLevel + hLevel); c>0; c--){
           result += outlineBeginTag;
           result += headingTag(hLevel, hId, hTitle);
         }
-
-        tocStack.push(
-          { "level": hLevel, "title": hTitle, "id": hId }
-        )
-        status = "heading";
-        outlineLevel = hLevel;
+      }else if(outlineLevel > hLevel){
+        for(var c=(outlineLevel - hLevel); c>0; c--){
+          result += outlineEndTag;
+        }
+        result += outlineBeginTag;
+        result += headingTag(hLevel, hId, hTitle);
+      }else if(outlineLevel == hLevel){
+        result += outlineEndTag;
+        result += outlineBeginTag;
+        result += headingTag(hLevel, hId, hTitle);
       }
 
-			if(status != "heading"){ 
-			  result += l;
-			}
-			if(status != "heading" && status != "hr"){
-  		  result += "\n"; 
-			}
-			
-			indentLineOld = indentLine;
-	  }
-		for(var b=outlineLevel; b>=0; b--){
-		  result += '</div>';
-		}
+      tocStack.push(
+        { "level": hLevel, "title": hTitle, "id": hId }
+      )
+      status = "heading";
+      outlineLevel = hLevel;
+    }
+
+    if(status != "heading"){ 
+      result += l;
+    }
+    if(status != "heading" && status != "hr"){
+      result += "\n"; 
+    }
+    
+    indentLineOld = indentLine;
+  }
+  for(var b=outlineLevel; b>=0; b--){
+    result += '</div>';
+  }
 
 
-		//  alert( result );
-	  d.style.display = "none";
-	  formatted = document.createElement("pre");
-	  formatted.id = "formatted_body";
-	  formatted.innerHTML = result;
-	  document.getElementsByTagName("body")[0].insertBefore(formatted, null);
-	  
-	} // end fragment(lines)
+  //  alert( result );
+  content.style.display = "none";
+  formatted = document.createElement("pre");
+  formatted.id = "formatted_body";
+  formatted.innerHTML = result;
+  document.getElementsByTagName("body")[0].insertBefore(formatted, null);
 	
 	// TOC
 	var toc = document.createElement("div");
