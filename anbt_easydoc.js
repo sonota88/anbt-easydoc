@@ -103,7 +103,8 @@ var easyLog = function (){
 	var tocStack = [];
 
 	var content = document.getElementsByName("content")[0];
-	//console.log(days);
+	
+	var result = "";
 
   // 行ごとに処理
   var lines = [];
@@ -190,8 +191,6 @@ var easyLog = function (){
     result += '</div>';
   }
 
-
-  //  alert( result );
   content.style.display = "none";
   formatted = document.createElement("pre");
   formatted.id = "formatted_body";
