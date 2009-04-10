@@ -11,7 +11,7 @@
 </head>
 <body onload="prettyPrint()">
 
-<pre name="logFragment">
+<pre name="content">
 </pre>
 
 </body>
@@ -125,8 +125,6 @@ var easyLog = function (){
     if( indentLineOld == true && indentLine == false ){
       result += '</pre>'
     }
-
-    //if( indentLine ){ l = l.replace( /^\s/, '' ); }
 
     if(l.match(/^----/)){ 
       l = "<hr />"
