@@ -126,7 +126,7 @@ var easyLog = function (){
       result += '</pre>'
     }
 
-    if( indentLine ){ l = l.replace( /^\s/, '' ); }
+    //if( indentLine ){ l = l.replace( /^\s/, '' ); }
 
     if(l.match(/^----/)){ 
       l = "<hr />"
@@ -179,6 +179,7 @@ var easyLog = function (){
     }
 
     if(status != "heading"){ 
+      if( indentLine ){ l = l.replace( /^\s/, '' ); }
       result += l;
     }
     if(status != "heading" && status != "hr"){
