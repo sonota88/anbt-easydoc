@@ -157,10 +157,10 @@ var easyLog = function (){
       if(outlineLevel < hLevel){
         for(var c=( - outlineLevel + hLevel); c>0; c--){
           result += outlineBeginTag;
-          result += headingTag(hLevel, hId, hTitle);
         }
+        result += headingTag(hLevel, hId, hTitle);
       }else if(outlineLevel > hLevel){
-        for(var c=(outlineLevel - hLevel); c>0; c--){
+        for(var c=(outlineLevel - hLevel); c>=0; c--){
           result += outlineEndTag;
         }
         result += outlineBeginTag;
