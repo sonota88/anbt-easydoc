@@ -170,6 +170,9 @@ var easyLog = function (){
         }else if( l.match( /^https?\:\/\// ) ){
           l = "<a href='"+ l +"'>"+ l +"</a>";
           status = "a";
+        }else if( l.match( /^link:/ ) ){
+          l = "<a href='"+ RegExp.rightContext +"'>"+ RegExp.rightContext +"</a>";
+          status = "a";
         }else if( l.match( /^img:(.+)$/ ) ){
           l = '<img src="' + RegExp.$1 + '" />'
           status = "img";
