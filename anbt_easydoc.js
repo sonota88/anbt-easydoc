@@ -93,8 +93,19 @@ var easyLog = function (){
     return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hTitle + '</h' + hLevel + '>';
   }
 
+
+  function Stack(){
+    var stack = [];
+    this.push = function(value){      stack.push(value);    };
+    this.pop = function(){ return stack.pop(); };
+    this.last = function(){ return stack[stack.length - 1]; };
+    this.length = function(){ return stack.length; };
+    this.at = function(n){ return stack[n]; };
+  }
+
   
   function Parser(){
+    var stackTOC = new Stack();
     this.parse = function(text){
       var result = "";
       var lines = text.split( "\n" )
@@ -102,10 +113,8 @@ var easyLog = function (){
         l = lines[b]
         status = null;
     
-        if(l.match(/^\s/)){
-          indentLine = true;
-        }else{
-          indentLine = false;
+        if(l.match(/^\s/)){ indentLine = true;
+        }else{              indentLine = false;
         }
         
         if( indentLineOld == false && indentLine == true ){
@@ -124,10 +133,8 @@ var easyLog = function (){
           l = '<img src="' + RegExp.$1 + '" />'
         }
     
-        if(       l.match( /^q\{-*$/ ) ){
-          l = "<blockquote>";
-        }else if( l.match( /^\}q-*$/ ) ){
-          l = "</blockquote>";
+        if(       l.match( /^q\{-*$/ ) ){ l = "<blockquote>";
+        }else if( l.match( /^\}q-*$/ ) ){ l = "</blockquote>";
         }
     
         var hLevel = null;
@@ -140,7 +147,7 @@ var easyLog = function (){
         }else if(l.match(/^=(.+?)=*$/     )){ hLevel = 1; hTitle = RegExp.$1;
         }
         if(hLevel){
-          hId = "heading" + tocStack.length;
+          hId = "heading" + stackTOC.length();
           if(outlineLevel < hLevel){
             for(var c=( - outlineLevel + hLevel); c>0; c--){
               result += outlineBeginTag;
@@ -158,7 +165,7 @@ var easyLog = function (){
             result += headingTag(hLevel, hId, hTitle);
           }
     
-          tocStack.push(
+          stackTOC.push(
             { "level": hLevel, "title": hTitle, "id": hId }
           )
           status = "heading";
@@ -181,6 +188,39 @@ var easyLog = function (){
       
       return result;
     }
+    
+    
+    this.makeTOC = function(){
+      var levelOld = 0;
+      var levelNow = 0;
+      var result = "";
+      
+      for(var a=0; a<stackTOC.length(); a++){
+        levelNow = stackTOC.at(a).level;
+        
+        if(levelOld < levelNow){
+          for(var b=levelNow - levelOld; b>0; b--){
+            result += "<ul>";
+          }
+        }
+        if(levelOld > levelNow){
+          for(var b=levelOld - levelNow; b>0; b--){
+            result += "</ul>\n";
+          }
+        }
+        
+        result += '<li><a href="#' + stackTOC.at(a).id + '">';
+        result += stackTOC.at(a).title;
+        result += '</a></li>\n';
+        
+        levelOld = levelNow;
+      }
+      for(var b=levelOld; b>0; b--){
+        result += "</ul>\n";
+      }
+      
+      return result;
+    }
   }
 
 
@@ -189,10 +229,10 @@ var easyLog = function (){
 	var outlineLevel = 0;
 	var outlineBeginTag = '<div class="outline">';
 	var outlineEndTag   = '</div>';
+	
+	var bodyElem = document.getElementsByTagName("body")[0]
+	var content  = document.getElementsByName("content")[0];
 
-	var tocStack = [];
-
-	var content = document.getElementsByName("content")[0];
 	var parser = new Parser();
   var result = parser.parse(content.innerHTML);
 
@@ -202,45 +242,12 @@ var easyLog = function (){
   formatted.innerHTML = result;
   document.getElementsByTagName("body")[0].insertBefore(formatted, null);
 	
-	// TOC
-	var toc = document.createElement("div");
-	toc.id = "TOC";
-	var levelOld = 0;
-	var levelNow = 0;
-	var result = "";
-	
-	for(var a=0; a<tocStack.length; a++){
-	  levelNow = tocStack[a].level;
-	  
-	  if(levelOld < levelNow){
-	    for(var b=levelNow - levelOld; b>0; b--){
-    	  result += "<ul>";
-  	  }
-	  }
-	  if(levelOld > levelNow){
-	    for(var b=levelOld - levelNow; b>0; b--){
-    	  result += "</ul>\n";
-  	  }
-	  }
-	  
-	  //result += '<li><a href="#' + tocStack[a].id + '">' + levelNow + ": ";
-	  result += '<li><a href="#' + tocStack[a].id + '">';
-	  result += tocStack[a].title;
-	  result += '</a></li>\n';
-	  
-	  levelOld = levelNow;
-	}
-	for(var b=levelOld; b>0; b--){
-    result += "</ul>\n";
-  }
-	
-	toc.innerHTML = result;
-	
-	var bodyElem = document.getElementsByTagName("body")[0]
+  var toc = document.createElement("div");
+  toc.id = "TOC";
+	toc.innerHTML = parser.makeTOC();
 	bodyElem.insertBefore(toc, bodyElem.firstChild);
 	
 	// Page title
-	//console.log(document.title);
 	var titleP = document.createElement("p");
 	titleP.setAttribute("class", "document_title");
 	titleP.innerHTML = document.title;
