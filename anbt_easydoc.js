@@ -56,6 +56,12 @@ quoted paragraph etc.
 引用する段落など
 }q
 
+= インライン要素
+
+foo *b* bar. // bold
+foo _em_ bar. // emphasis
+foo +tt+ bar. // teletype
+
 */
 
 
