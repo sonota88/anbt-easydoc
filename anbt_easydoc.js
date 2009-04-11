@@ -117,17 +117,17 @@ var easyLog = function (){
       c = 0;
       while(buf){
         //console.log( c +": "+buf);
-        if(buf.match(/\*(.+)\*/)){
+        if(buf.match(/(^| )\*(.+?)\* /)){
           result += RegExp.leftContext ;
-          result += "<b>"+RegExp.$1+"</b>" ;
+          result += " <b>"+RegExp.$2+"</b> " ;
           buf = RegExp.rightContext ;
-        }else if(buf.match(/_(.+)_/)){
+        }else if(buf.match(/(^| )_(.+?)_ /)){
           result += RegExp.leftContext ;
-          result += "<em>"+RegExp.$1+"</em>" ;
+          result += " <em>"+RegExp.$2+"</em> " ;
           buf = RegExp.rightContext ;
-        }else if(buf.match(/\+(.+)\+/)){
+        }else if(buf.match(/(^| )\+(.+?)\+ /)){
           result += RegExp.leftContext ;
-          result += "<tt>"+RegExp.$1+"</tt>" ;
+          result += " <tt>"+RegExp.$2+"</tt> " ;
           buf = RegExp.rightContext ;
         }else{
           result += buf;
