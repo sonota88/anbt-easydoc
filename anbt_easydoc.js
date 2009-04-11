@@ -93,6 +93,96 @@ var easyLog = function (){
     return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hTitle + '</h' + hLevel + '>';
   }
 
+  
+  function Parser(){
+    this.parse = function(text){
+      var result = "";
+      var lines = text.split( "\n" )
+      for( b=0; b<lines.length; b++){
+        l = lines[b]
+        status = null;
+    
+        if(l.match(/^\s/)){
+          indentLine = true;
+        }else{
+          indentLine = false;
+        }
+        
+        if( indentLineOld == false && indentLine == true ){
+          result += '<pre class="indentBlock prettyprint">'
+        }
+        if( indentLineOld == true && indentLine == false ){
+          result += '</pre>'
+        }
+    
+        if(l.match(/^----/)){ 
+          l = "<hr />"
+          status = "hr";
+        }else if( l.match( /^https?\:\/\// ) ){
+          l = "<a href='"+ l +"'>"+ l +"</a>"
+        }else if( l.match( /^img:(.+)$/ ) ){
+          l = '<img src="' + RegExp.$1 + '" />'
+        }
+    
+        if(       l.match( /^q\{-*$/ ) ){
+          l = "<blockquote>";
+        }else if( l.match( /^\}q-*$/ ) ){
+          l = "</blockquote>";
+        }
+    
+        var hLevel = null;
+        var hTitle = null;
+        if      (l.match(/^======(.+?)=*$/)){ hLevel = 6; hTitle = RegExp.$1;
+        }else if(l.match(/^=====(.+?)=*$/ )){ hLevel = 5; hTitle = RegExp.$1;
+        }else if(l.match(/^====(.+?)=*$/  )){ hLevel = 4; hTitle = RegExp.$1;
+        }else if(l.match(/^===(.+?)=*$/   )){ hLevel = 3; hTitle = RegExp.$1;
+        }else if(l.match(/^==(.+?)=*$/    )){ hLevel = 2; hTitle = RegExp.$1;
+        }else if(l.match(/^=(.+?)=*$/     )){ hLevel = 1; hTitle = RegExp.$1;
+        }
+        if(hLevel){
+          hId = "heading" + tocStack.length;
+          if(outlineLevel < hLevel){
+            for(var c=( - outlineLevel + hLevel); c>0; c--){
+              result += outlineBeginTag;
+            }
+            result += headingTag(hLevel, hId, hTitle);
+          }else if(outlineLevel > hLevel){
+            for(var c=(outlineLevel - hLevel); c>=0; c--){
+              result += outlineEndTag;
+            }
+            result += outlineBeginTag;
+            result += headingTag(hLevel, hId, hTitle);
+          }else if(outlineLevel == hLevel){
+            result += outlineEndTag;
+            result += outlineBeginTag;
+            result += headingTag(hLevel, hId, hTitle);
+          }
+    
+          tocStack.push(
+            { "level": hLevel, "title": hTitle, "id": hId }
+          )
+          status = "heading";
+          outlineLevel = hLevel;
+        }
+    
+        if(status != "heading"){ 
+          if( indentLine ){ l = l.replace( /^\s/, '' ); }
+          result += l;
+        }
+        if(status != "heading" && status != "hr"){
+          result += "\n"; 
+        }
+        
+        indentLineOld = indentLine;
+      }
+      for(var b=outlineLevel; b>=0; b--){
+        result += '</div>';
+      }
+      
+      return result;
+    }
+  }
+
 
   /////////////////////////////////////////////////////////////////////////////////
 	var indentLine, indentLineOld;
@@ -103,92 +193,8 @@ var easyLog = function (){
 	var tocStack = [];
 
 	var content = document.getElementsByName("content")[0];
-	
-	var result = "";
-
-  // 行ごとに処理
-  var lines = [];
-  lines = content.innerHTML.split( "\n" )
-  for( b=0; b<lines.length; b++){
-    l = lines[b]
-    status = null;
-
-    if(l.match(/^\s/)){
-      indentLine = true;
-    }else{
-      indentLine = false;
-    }
-    
-    if( indentLineOld == false && indentLine == true ){
-      result += '<pre class="indentBlock prettyprint">'
-    }
-    if( indentLineOld == true && indentLine == false ){
-      result += '</pre>'
-    }
-
-    if(l.match(/^----/)){ 
-      l = "<hr />"
-      status = "hr";
-    }else if( l.match( /^https?\:\/\// ) ){
-      l = "<a href='"+ l +"'>"+ l +"</a>"
-    }else if( l.match( /^img:(.+)$/ ) ){
-      l = '<img src="' + RegExp.$1 + '" />'
-    }
-
-    if(       l.match( /^q\{-*$/ ) ){
-      l = "<blockquote>";
-    }else if( l.match( /^\}q-*$/ ) ){
-      l = "</blockquote>";
-    }
-
-    var hLevel = null;
-    var hTitle = null;
-    if      (l.match(/^======(.+?)=*$/)){ hLevel = 6; hTitle = RegExp.$1;
-    }else if(l.match(/^=====(.+?)=*$/ )){ hLevel = 5; hTitle = RegExp.$1;
-    }else if(l.match(/^====(.+?)=*$/  )){ hLevel = 4; hTitle = RegExp.$1;
-    }else if(l.match(/^===(.+?)=*$/   )){ hLevel = 3; hTitle = RegExp.$1;
-    }else if(l.match(/^==(.+?)=*$/    )){ hLevel = 2; hTitle = RegExp.$1;
-    }else if(l.match(/^=(.+?)=*$/     )){ hLevel = 1; hTitle = RegExp.$1;
-    }
-    if(hLevel){
-      hId = "heading" + tocStack.length;
-      if(outlineLevel < hLevel){
-        for(var c=( - outlineLevel + hLevel); c>0; c--){
-          result += outlineBeginTag;
-        }
-        result += headingTag(hLevel, hId, hTitle);
-      }else if(outlineLevel > hLevel){
-        for(var c=(outlineLevel - hLevel); c>=0; c--){
-          result += outlineEndTag;
-        }
-        result += outlineBeginTag;
-        result += headingTag(hLevel, hId, hTitle);
-      }else if(outlineLevel == hLevel){
-        result += outlineEndTag;
-        result += outlineBeginTag;
-        result += headingTag(hLevel, hId, hTitle);
-      }
-
-      tocStack.push(
-        { "level": hLevel, "title": hTitle, "id": hId }
-      )
-      status = "heading";
-      outlineLevel = hLevel;
-    }
-
-    if(status != "heading"){ 
-      if( indentLine ){ l = l.replace( /^\s/, '' ); }
-      result += l;
-    }
-    if(status != "heading" && status != "hr"){
-      result += "\n"; 
-    }
-    
-    indentLineOld = indentLine;
-  }
-  for(var b=outlineLevel; b>=0; b--){
-    result += '</div>';
-  }
+	var parser = new Parser();
+  var result = parser.parse(content.innerHTML);
 
   content.style.display = "none";
   formatted = document.createElement("pre");
