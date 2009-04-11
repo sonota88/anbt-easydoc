@@ -96,7 +96,7 @@ var easyLog = function (){
 
   function Stack(){
     var stack = [];
-    this.push = function(value){      stack.push(value);    };
+    this.push = function(value){ stack.push(value); };
     this.pop = function(){ return stack.pop(); };
     this.last = function(){ return stack[stack.length - 1]; };
     this.length = function(){ return stack.length; };
@@ -106,6 +106,36 @@ var easyLog = function (){
   
   function Parser(){
     var stackTOC = new Stack();
+    
+    
+    var procInline = function(line){
+      var buf = line;
+      var result = "";
+      c = 0;
+      while(buf){
+        //console.log( c +": "+buf);
+        if(buf.match(/\*(.+)\*/)){
+          result += RegExp.leftContext ;
+          result += "<b>"+RegExp.$1+"</b>" ;
+          buf = RegExp.rightContext ;
+        }else if(buf.match(/_(.+)_/)){
+          result += RegExp.leftContext ;
+          result += "<em>"+RegExp.$1+"</em>" ;
+          buf = RegExp.rightContext ;
+        }else if(buf.match(/\+(.+)\+/)){
+          result += RegExp.leftContext ;
+          result += "<tt>"+RegExp.$1+"</tt>" ;
+          buf = RegExp.rightContext ;
+        }else{
+          result += buf;
+          break;
+        }
+        c++ ; if(c>5){ break;}
+      }
+      return result;
+    }
+    
+    
     this.parse = function(text){
       var result = "";
       var lines = text.split( "\n" )
@@ -113,7 +143,7 @@ var easyLog = function (){
         l = lines[b]
         status = null;
     
-        if(l.match(/^\s/)){ indentLine = true;
+        if(l.match(/^\s/)){ indentLine = true;  status = "pre";
         }else{              indentLine = false;
         }
         
@@ -128,9 +158,11 @@ var easyLog = function (){
           l = "<hr />"
           status = "hr";
         }else if( l.match( /^https?\:\/\// ) ){
-          l = "<a href='"+ l +"'>"+ l +"</a>"
+          l = "<a href='"+ l +"'>"+ l +"</a>";
+          status = "a";
         }else if( l.match( /^img:(.+)$/ ) ){
           l = '<img src="' + RegExp.$1 + '" />'
+          status = "img";
         }
     
         if(       l.match( /^q\{-*$/ ) ){ l = "<blockquote>";
@@ -170,6 +202,10 @@ var easyLog = function (){
           )
           status = "heading";
           outlineLevel = hLevel;
+        }
+        
+        if(status == null){
+          l = procInline(l);
         }
     
         if(status != "heading"){ 
