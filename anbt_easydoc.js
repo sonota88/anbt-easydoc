@@ -7,6 +7,7 @@
   <link  href="prettify.css" type="text/css" rel="stylesheet">
   <script type="text/javascript" src="prettify.js"></script>
   <script type="text/javascript" src="anbt_easydoc.js"></script>
+  <style><!-- * { line-height: 150%; } body { padding: 2ex 5%; } --></style>
   <title>document title</title>
 </head>
 <body onload="prettyPrint()">
@@ -82,6 +83,8 @@ var easyLog = function (){
       #toc ul { padding-left: 2ex; } \
       blockquote { border: solid 2px #d80; padding: 0 1ex; } \
       div.outline{ padding: 0 0 0 2ex; } \
+      em { font-style: normal; background-color: #ff0; } \
+      tt { background-color: #ddc; } \
     ';
   
     document.getElementsByTagName("head")[0].appendChild(css);
