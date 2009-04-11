@@ -13,6 +13,16 @@
 
 <pre name="content">
 
+= Description / 説明 ======================================
+
+メモ、端末のログ、プログラムの断片、参考サイトからのコピペなどを
+手軽に記録するためのツール。
+HTML、CSS、Javascript とWiki的な簡易記法を使っています。
+
+_Firefoxでしか動作確認していません。_
+
+_オレオレツールなので今後記法などを変更する可能性があります。_
+
 = Download / ダウンロード ======================================
 
 sonota's anbt_easydoc at master - GitHub
@@ -51,19 +61,29 @@ The quick brown fox jumps over the lazy dog
 
 == Preformatted text / 整形済みテキスト ======================================
 
+行の先頭に空白文字（タブまたは半角スペース）を入れる。
+
   function fooFunc(){
     alert("foo");
   }
 
 == Horizontal rule / 水平線 ======================================
 
+ハイフン4つ以上。
+
   ----
 ----
 
-== URL / URL ======================================
+== Link / リンク ======================================
 
   http://foo.com/
 http://foo.com/
+
+----
+相対リンクなどの場合は行頭に +link:+ を置く。
+
+  link: ../
+link: ../
 
 == Image / 画像 ======================================
 
@@ -72,17 +92,45 @@ img: sample.png
 
 == Blockquote / ブロック引用 ======================================
 
+  q{
+  quoted paragraph etc.
+  引用された段落など
+  }q
+
+または +q{+ 、 +}q+ の後ろに任意の文字列。
+
+  q{----------------
+  quoted paragraph etc.
+  引用された段落など
+  }q----------------
+
 q{
 quoted paragraph etc.
 引用された段落など
 }q
 
+== Inline / インライン要素 ======================================
+
+前後に半角スペースが必要。ただし、行頭、行末では不要。
+
+  foo *bold* bar.     => b
+foo *bold* bar.
+  foo _emphasis_ bar. => em
+foo _emphasis_ bar.
+  foo +teletype+ bar. => tt
+foo +teletype+ bar.
+
+=== 強調テキストの索引
+
+_強調した部分は後部に索引としてリストアップされます_ 
+↓
+link: #emphasis_index
 
 
 
 = License / ライセンス ======================================
 
-まだ決めてない
+まだ決めてません。
 
 </pre>
 
