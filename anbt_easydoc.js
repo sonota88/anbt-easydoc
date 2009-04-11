@@ -85,6 +85,7 @@ var easyLog = function (){
       div.outline{ padding: 0 0 0 2ex; } \
       em { font-style: normal; background-color: #ff0; } \
       tt { background-color: #ddc; } \
+      #emphasis_index { margin: 4ex 0 0 0; padding: 2ex; border: solid #000; border-width: 1px 0 0 0; } \
     ';
   
     document.getElementsByTagName("head")[0].appendChild(css);
@@ -239,7 +240,7 @@ var easyLog = function (){
         
         if(levelOld < levelNow){
           for(var b=levelNow - levelOld; b>0; b--){
-            result += "<ul>";
+            result += '<ul id="toc_list">';
           }
         }
         if(levelOld > levelNow){
@@ -291,6 +292,27 @@ var easyLog = function (){
 	titleP.setAttribute("class", "document_title");
 	titleP.innerHTML = document.title;
 	bodyElem.insertBefore(titleP, bodyElem.firstChild);
+
+  // Index of emphatic text
+  var emReference = "";
+  var emphasis = formatted.getElementsByTagName("em");
+  for(var a=0;a<emphasis.length; a++){
+    var id = "emphasis_" + a;
+    emphasis[a].id = id;
+    emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n'
+  }
+  emReference = "<ul>" + emReference + "</ul>";
+  emReference = "<h1>Index of emphatic texts</h1>" + emReference;
+  
+  var emRefElem = document.createElement("div");
+  emRefElem.id = "emphasis_index";
+	emRefElem.innerHTML = emReference;
+	bodyElem.appendChild(emRefElem);
+	
+	// add to TOC
+	var temp = document.createElement("li");
+	temp.innerHTML = '<a href="#emphasis_index">Index of emphatic texts</a>';
+	document.getElementById("toc_list").appendChild(temp);
 	
 	applyDefaultCSS();
 }
