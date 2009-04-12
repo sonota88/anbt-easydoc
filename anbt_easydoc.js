@@ -305,23 +305,25 @@ var easyLog = function (){
   // Index of emphatic text
   var emReference = "";
   var emphasis = formatted.getElementsByTagName("em");
-  for(var a=0;a<emphasis.length; a++){
-    var id = "emphasis_" + a;
-    emphasis[a].id = id;
-    emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n'
-  }
-  emReference = "<ul>" + emReference + "</ul>";
-  emReference = "<h1>Index of emphatic texts</h1>" + emReference;
-  
-  var emRefElem = document.createElement("div");
-  emRefElem.id = "emphasis_index";
-	emRefElem.innerHTML = emReference;
-	bodyElem.appendChild(emRefElem);
-	
-	// add to TOC
-	var temp = document.createElement("li");
-	temp.innerHTML = '<a href="#emphasis_index">Index of emphatic texts</a>';
-	document.getElementById("toc_list").appendChild(temp);
+  if(emphasis.length > 0){
+    for(var a=0;a<emphasis.length; a++){
+      var id = "emphasis_" + a;
+      emphasis[a].id = id;
+      emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n'
+    }
+    emReference = "<ul>" + emReference + "</ul>";
+    emReference = "<h1>Index of emphatic texts</h1>" + emReference;
+    
+    var emRefElem = document.createElement("div");
+    emRefElem.id = "emphasis_index";
+    emRefElem.innerHTML = emReference;
+    bodyElem.appendChild(emRefElem);
+    
+    // add to TOC
+    var temp = document.createElement("li");
+    temp.innerHTML = '<a href="#emphasis_index">Index of emphatic texts</a>';
+    document.getElementById("toc_list").appendChild(temp);
+	}
 	
 	applyDefaultCSS();
 }
