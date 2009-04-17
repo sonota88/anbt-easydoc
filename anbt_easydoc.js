@@ -289,7 +289,7 @@ var easyLog = function (){
   formatted = document.createElement("pre");
   formatted.id = "formatted_body";
   formatted.innerHTML = result;
-  document.getElementsByTagName("body")[0].insertBefore(formatted, null);
+  //document.getElementsByTagName("body")[0].insertBefore(formatted, null);
 	
   var toc = document.createElement("div");
   toc.id = "TOC";
@@ -300,11 +300,11 @@ var easyLog = function (){
 	var titleP = document.createElement("p");
 	titleP.setAttribute("class", "document_title");
 	titleP.innerHTML = document.title;
-	bodyElem.insertBefore(titleP, bodyElem.firstChild);
 
   // Index of emphatic text
   var emReference = "";
   var emphasis = formatted.getElementsByTagName("em");
+  var emRefElem = null;
   if(emphasis.length > 0){
     for(var a=0;a<emphasis.length; a++){
       var id = "emphasis_" + a;
@@ -314,10 +314,9 @@ var easyLog = function (){
     emReference = "<ul>" + emReference + "</ul>";
     emReference = "<h1>Index of emphatic texts</h1>" + emReference;
     
-    var emRefElem = document.createElement("div");
+    emRefElem = document.createElement("div");
     emRefElem.id = "emphasis_index";
     emRefElem.innerHTML = emReference;
-    bodyElem.appendChild(emRefElem);
     
     // add to TOC
     var temp = document.createElement("li");
@@ -325,6 +324,12 @@ var easyLog = function (){
     document.getElementById("toc_list").appendChild(temp);
 	}
 	
+  if(emRefElem){
+    bodyElem.insertBefore(emRefElem, bodyElem.firstChild);
+  }
+  bodyElem.insertBefore(formatted, bodyElem.firstChild);
+  bodyElem.insertBefore(titleP, bodyElem.firstChild);
+
 	applyDefaultCSS();
 }
 
