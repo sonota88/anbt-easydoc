@@ -328,4 +328,7 @@ var easyLog = function (){
 	applyDefaultCSS();
 }
 
-window.addEventListener( "load", easyLog, true );
+
+if(navigator.userAgent.indexOf("MSIE") == -1){
+  window.addEventListener( "load", easyLog, true );
+}
