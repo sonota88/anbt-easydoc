@@ -4,15 +4,18 @@
 
 <html>
 <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link  href="prettify.css" type="text/css" rel="stylesheet">
   <script type="text/javascript" src="prettify.js"></script>
   <script type="text/javascript" src="anbt_easydoc.js"></script>
   <style><!-- * { line-height: 150%; } body { padding: 2ex 5%; } --></style>
-  <title>document title</title>
 </head>
 <body onload="prettyPrint()">
 
 <pre name="content">
+title:
+by:
+date:
 </pre>
 
 </body>
@@ -152,11 +155,31 @@ var easyLog = function (){
     }
     
     
+    this.procPreamble = function(lines){
+      var preamble_range = 20;
+      for(var a=0; a<preamble_range; a++){
+        if(lines[a].match(/^title:(.+)/) ){
+          self.docTitle = RegExp.$1;
+          delete lines[a];
+        }else if(lines[a].match(/^by:(.+)/) ){
+          self.by = RegExp.$1;
+          delete lines[a];
+        }else if(lines[a].match(/^date:(.+)/) ){
+          self.date = RegExp.$1;
+          delete lines[a];
+        }
+      }
+    }
+    
+    
     this.parse = function(text){
       var result = "";
       var lines = text.split( "\n" )
-      for( b=0; b<lines.length; b++){
-        l = lines[b]
+      
+      this.procPreamble(lines);
+      
+      for(var b in lines){
+        l = lines[b];
         status = null;
     
         if(l.match(/^\s/)){ indentLine = true;  status = "pre";
@@ -280,6 +303,7 @@ var easyLog = function (){
 
 
   /////////////////////////////////////////////////////////////////////////////////
+  var self = this;
 	var indentLine, indentLineOld;
 	var outlineLevel = 0;
 	var outlineBeginTag = '<div class="outline">';
@@ -303,9 +327,21 @@ var easyLog = function (){
 	bodyElem.insertBefore(toc, bodyElem.firstChild);
 	
 	// Page title
-	var titleP = document.createElement("p");
-	titleP.setAttribute("class", "document_title");
-	titleP.innerHTML = document.title;
+  var titleP = document.createElement("p");
+  if(self.docTitle){
+    var temp = this.docTitle;
+    if(self.by){
+      temp += " by " + self.by;
+    }
+    titleP.setAttribute("class", "document_title");
+    titleP.innerHTML = temp;
+    
+    if(self.date){
+      temp += " (" + date + ")" ;
+    }
+    
+    document.title = temp;
+  }
 
   // Index of emphatic text
   var emReference = "";
@@ -334,7 +370,9 @@ var easyLog = function (){
     bodyElem.insertBefore(emRefElem, bodyElem.firstChild);
   }
   bodyElem.insertBefore(formatted, bodyElem.firstChild);
-  bodyElem.insertBefore(titleP, bodyElem.firstChild);
+  if(self.docTitle){
+    bodyElem.insertBefore(titleP, bodyElem.firstChild);
+  }
 
 	applyDefaultCSS();
 }
