@@ -84,7 +84,8 @@ var easyLog = function (){
     , "p.document_title": "font-size: 150%; font-weight: bold; \
         background-color: #068; color: #fff; \
         margin: 0; margin-bottom: 1ex; padding: 2ex; text-align: center;"
-    , "h1, h2, h3, h4, h5, h6, pre": "margin: 0; padding: 0 1ex;"
+    , "h1, h2, h3, h4, h5, h6, pre": "margin: 0; padding: 0 1ex; margin-left: -2ex;"
+    , ".outline h1, .outline h2, .outline h3, .outline h4, .outline h5, .outline h6": "margin-left: -2ex;"
     , h1: "font-size: 140%; text-align: center; \
         background-color: #444; color: #fff;  padding: 1ex 2ex;"
     , h2: "font-size: 130%; background-color: #ddd; \
@@ -158,6 +159,7 @@ var easyLog = function (){
     this.procPreamble = function(lines){
       var preamble_range = 20;
       for(var a=0; a<preamble_range; a++){
+        if(!lines[a]){ continue; }
         if(lines[a].match(/^title:(.+)/) ){
           self.docTitle = RegExp.$1;
           delete lines[a];
