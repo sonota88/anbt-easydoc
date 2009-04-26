@@ -6,8 +6,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <link  href="prettify.css" type="text/css" rel="stylesheet">
-  <script type="text/javascript" src="prettify.js"></script>
-  <script type="text/javascript" src="anbt_easydoc.js"></script>
+  <script src="prettify.js" type="text/javascript"></script>
+  <script src="anbt_easydoc.js" type="text/javascript"></script>
   <style><!-- * { line-height: 150%; } body { padding: 2ex 5%; } --></style>
 </head>
 <body onload="prettyPrint()">
@@ -70,10 +70,15 @@ foo +tt+ bar. // teletype
 
 var easyLog = function (){
   function applyDefaultCSS(){
-    (function(obj){
-      var ss = document.styleSheets[0];
-      for(var selector in obj){
-        ss.insertRule(selector + "{" + obj[selector] + "}", ss.cssRules.length);
+    (function(rules){
+      var headElement = document.getElementsByTagName("head")[0];
+      var styleElement = document.createElement("style");
+      styleElement.type = "text/css";
+      headElement.appendChild(styleElement);
+
+      var sheet = styleElement.sheet;
+      for(var selector in rules){
+        sheet.insertRule(selector + "{" + rules[selector] + "}", sheet.cssRules.length);
       }
     })({
       "*": "line-height: 150%; -moz-border-radius: 3px;"
