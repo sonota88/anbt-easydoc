@@ -82,13 +82,12 @@ var easyLog = function (){
       }
     })({
       "*": "line-height: 150%; -moz-border-radius: 3px;"
-    , body: "width: 80%; margin-left: 20%; padding: 0; padding-top: 0; margin-top: 0;"
-    , "pre.indentBlock": "margin: 1ex 0 1ex 4ex;  padding: 0.5ex; \
-         background-color: #f0f8f8;  border: solid 1px #a0b8b8; line-height: 120%; \
-         font-size: 90%;"
-    , "p.document_title": "font-size: 150%; font-weight: bold; \
+    , body: "padding: 0; padding-top: 0; margin-top: 0;"
+    , "#document_title": "font-size: 150%; font-weight: bold; \
         background-color: #068; color: #fff; \
         margin: 0; margin-bottom: 1ex; padding: 2ex; text-align: center;"
+    , "#main_box": "margin: 0 0 0 20%;"
+    , "#formatted_body": "margin: 0;"
     , "h1, h2, h3, h4, h5, h6, pre": "margin: 0; padding: 0 1ex; margin-left: -2ex;"
     , ".outline h1, .outline h2, .outline h3, .outline h4, .outline h5, .outline h6": "margin-left: -2ex;"
     , h1: "font-size: 140%; text-align: center; \
@@ -103,6 +102,9 @@ var easyLog = function (){
         top: 0;left: 0; width: 18%; height: 100%; \
         background-color: #eee; border: solid 1px #ccc; overflow: auto; padding: 1%;"
     , "#toc ul": "padding-left: 2ex;"
+    , "pre.indentBlock": "margin: 1ex 0 1ex 4ex;  padding: 0.5ex; \
+         background-color: #f0f8f8;  border: solid 1px #a0b8b8; line-height: 120%; \
+         font-size: 90%;"
     , blockquote: "border: solid 2px #d80; padding: 0 1ex;"
     , "div.outline": "padding: 0 0 0 2ex;"
     , em: "font-style: normal; background-color: #ff0;"
@@ -318,6 +320,8 @@ var easyLog = function (){
 	
 	var bodyElem = document.getElementsByTagName("body")[0]
 	var content  = document.getElementsByName("content")[0];
+	var mainBox = document.createElement("div");
+	mainBox.id = "main_box";
 
 	var parser = new Parser();
   var result = parser.parse(content.innerHTML);
@@ -340,7 +344,7 @@ var easyLog = function (){
     if(self.by){
       temp += " by " + self.by;
     }
-    titleP.setAttribute("class", "document_title");
+    titleP.id = "document_title";
     titleP.innerHTML = temp;
     
     if(self.date){
@@ -374,12 +378,13 @@ var easyLog = function (){
 	}
 	
   if(emRefElem){
-    bodyElem.insertBefore(emRefElem, bodyElem.firstChild);
+    mainBox.insertBefore(emRefElem, mainBox.firstChild);
   }
-  bodyElem.insertBefore(formatted, bodyElem.firstChild);
+  mainBox.insertBefore(formatted, mainBox.firstChild);
   if(self.docTitle){
-    bodyElem.insertBefore(titleP, bodyElem.firstChild);
+    mainBox.insertBefore(titleP, mainBox.firstChild);
   }
+  bodyElem.insertBefore(mainBox, bodyElem.firstChild);
 
 	applyDefaultCSS();
 }
