@@ -4,7 +4,7 @@
 
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="article-Type" article="text/html; charset=utf-8"/>
   <link  href="prettify.css" type="text/css" rel="stylesheet">
   <script src="prettify.js" type="text/javascript"></script>
   <script src="anbt_easydoc.js" type="text/javascript"></script>
@@ -12,11 +12,11 @@
 </head>
 <body onload="prettyPrint()">
 
-<pre name="content">
+<pre name="article">
 title:
 by:
 date:
-</pre>
+</pre><!--/article-->
 
 </body>
 </html>
@@ -106,6 +106,7 @@ var easyLog = function (){
          background-color: #f0f8f8;  border: solid 1px #a0b8b8; line-height: 120%; \
          font-size: 90%;"
     , blockquote: "border: solid 2px #d80; padding: 0 1ex;"
+    , "div.box":    "border: solid 1px #888; padding: 0 1ex;"
     , "div.outline": "padding: 0 0 0 2ex;"
     , em: "font-style: normal; background-color: #ff0;"
     , tt: "background-color: #ddc;"
@@ -216,6 +217,9 @@ var easyLog = function (){
           status = "img";
         }
     
+        if(       l.match( /^b\{-*$/ ) ){ l = '<div class="box">';
+        }else if( l.match( /^\}b-*$/ ) ){ l = '</div>';
+        }
         if(       l.match( /^q\{-*$/ ) ){ l = "<blockquote>";
         }else if( l.match( /^\}q-*$/ ) ){ l = "</blockquote>";
         }
@@ -319,17 +323,20 @@ var easyLog = function (){
 	var outlineEndTag   = '</div>';
 	
 	var bodyElem = document.getElementsByTagName("body")[0]
-	var content  = document.getElementsByName("content")[0];
+	var article  = document.getElementsByName("article")[0];
 	var mainBox = document.createElement("div");
 	mainBox.id = "main_box";
 
 	var parser = new Parser();
-  var result = parser.parse(content.innerHTML);
+  var result = parser.parse(article.innerHTML);
 
-  content.style.display = "none";
+  article.style.display = "none";
   formatted = document.createElement("pre");
   formatted.id = "formatted_body";
   formatted.innerHTML = result;
+  formattedSrc = document.createElement("textarea");
+  formattedSrc.id = "formatted_body";
+  formattedSrc.innerHTML = result;
   //document.getElementsByTagName("body")[0].insertBefore(formatted, null);
 	
   var toc = document.createElement("div");
@@ -380,6 +387,7 @@ var easyLog = function (){
   if(emRefElem){
     mainBox.insertBefore(emRefElem, mainBox.firstChild);
   }
+  mainBox.insertBefore(formattedSrc, mainBox.firstChild);
   mainBox.insertBefore(formatted, mainBox.firstChild);
   if(self.docTitle){
     mainBox.insertBefore(titleP, mainBox.firstChild);
