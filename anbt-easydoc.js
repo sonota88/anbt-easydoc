@@ -69,6 +69,114 @@ foo +tt+ bar. // teletype
 
 var easyLog = function (){
 
+  function Stack(){
+    var stack = [];
+    this.push = function(value){ stack.push(value); };
+    this.pop = function(){ return stack.pop(); };
+    this.last = function(){ return stack[stack.length - 1]; };
+    this.length = function(){ return stack.length; };
+    this.at = function(n){ return stack[n]; };
+  }
+
+  
+
+function Elem(type, content){
+  this.type = type;
+  this.list = [];
+  this.content = content;
+}
+Elem.prototype = {
+  toHtml: function(){
+    if( ! this.type ){
+      return this.content ? procInline(this.content) : "";
+    }
+
+    var attr = "";
+    if(this.attr){
+      for(var k in this.attr){
+        var v = this.attr[k];
+        attr += " " + k + "='" + v + "'";
+      }
+    }
+
+    return "<" + this.type + " "
+      + attr
+      + " >"
+      + this.content
+      + "</" + this.type + ">";
+  }
+};
+
+
+function isundef(it){
+  return typeof it === "undefined";
+}
+
+
+function makeTOC(outline){
+  if(typeof outline.children === "undefined"
+     || outline === null
+     || typeof outline === "string"
+    ){
+    return "";
+  }
+  
+  var src = "";
+  if( ! isundef(outline.title) && outline.title != null ){
+    var anchor = "#heading" + outline.index;
+    var link = '<a href="' + anchor + '">' + outline.title + '</a>';
+    src += "<li>" + link + "</li>\n";
+  }
+
+
+  var kids = outline.children;
+  src += "<ul>";
+  for(var a=0; a<kids.length; a++){
+    var kid = kids[a];
+    if(typeof kid === "string"){ continue; }
+
+    var temp = makeTOC(kid);
+     if(temp.length > 0){
+       src += temp;
+     }
+  }
+  src += "</ul>";
+
+  return src;
+}
+
+
+function makeEMIndex(formatted){
+  // Index of emphatic text
+  var emReference = "";
+  var emphasis = xtag(formatted, "em");
+  var emRefElem = null;
+  if(emphasis.length > 0){
+    for(var a=0;a<emphasis.length; a++){
+      var id = "emphasis_" + a;
+      emphasis[a].id = id;
+      emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n';
+    }
+    emReference = "<ul>" + emReference + "</ul>";
+    emReference = "<h1>Index of emphatic texts</h1>" + emReference;
+
+    emRefElem = createElement(
+      null, "div"
+      , { id: "emphasis_index" }, {}
+      , emReference
+    );
+
+    // add to TOC
+    var temp = createElement(
+      document.getElementById("toc").childNodes[0]
+      , "li", {}, {}
+      , '<a href="#emphasis_index">Index of emphatic texts</a>'
+    );
+  }
+  
+  return emRefElem;
+}
+
 
   ////////////////////////////////
   // utils
@@ -79,6 +187,24 @@ var easyLog = function (){
 
   function xtag( elem, tagName ){
     return elem.getElementsByTagName( tagName );
+  }
+
+
+  function createElement(parent, tagName, attributes, styles, innerHTML){
+    var e = document.createElement(tagName);
+
+    if(attributes){
+      for(var key in attributes){
+        e.setAttribute(key, attributes[key]); }}
+    if(styles){
+      for(var key in styles){
+        e.style[key] = styles[key]; }}
+    if(innerHTML){
+      e.innerHTML = innerHTML; }
+    if(parent){
+      parent.appendChild(e); }
+
+    return e;
   }
 
 
@@ -100,6 +226,19 @@ var easyLog = function (){
   }
 
 
+  function unshift(first, arr){
+    var x = [ first ];
+    for(var a=0; a<arr.length; a++){
+      x.push(arr[a]);
+    }
+    return x;
+  }
+
+
+  function strip(str){
+    return str.replace( /^[\s\t\n\r\n]+/, "" ).replace( /[\s\t\r\n]+$/, "" );
+  }
+
   ////////////////////////////////
 
 
@@ -112,8 +251,6 @@ var easyLog = function (){
              margin: 0; margin-bottom: 1ex; padding: 2ex; text-align: center;"
          , "#main_box": "margin: 0 0 0 20%;"
          , "#formatted_body": "margin: 0;"
-         , "h1, h2, h3, h4, h5, h6, pre": "margin: 0; padding: 0 1ex; margin-left: -2ex;"
-         , ".outline h1, .outline h2, .outline h3, .outline h4, .outline h5, .outline h6": "margin-left: -2ex;"
          , h1: "font-size: 140%; \
              background-color: #444; color: #fff;  padding: 1ex 2ex;"
          , h2: "font-size: 130%; background-color: #ddd; \
@@ -124,14 +261,18 @@ var easyLog = function (){
          , h6: "font-size: 100%; border: solid #6a0; border-width: 0 0 0   0.5ex;"
          , "#toc": "font-size: 75%; position: fixed; \
              top: 0;left: 0; width: 18%; height: 100%; \
-             background-color: #eee; border: solid 1px #ccc; overflow: auto; padding: 1%;"
+             background-color: #f8f8f8; border: solid 1px #ddd; overflow: auto; padding: 1%;"
          , "#toc ul": "padding-left: 2ex;"
-         , "pre.indentBlock": "margin: 1ex 0 1ex 4ex;  padding: 0.5ex; \
-              background-color: #f4fafa;  border: solid 1px #b0c8c8; line-height: 120%; \
+         , "pre.indentBlock": "margin: 1ex 0 1ex 0;  padding: 0.5ex; \
+              background-color: #f8fafa;  border: solid 1px #e0e8e8; line-height: 120%; \
+              font-size: 90%;"
+         , "pre.ul": "margin: 1ex 0 1ex 0;  padding: 0.5ex; \
+              background-color: #fafafa;  border: none; line-height: 160%; \
               font-size: 90%;"
          , blockquote: "border: solid 2px #d80; padding: 0 1ex;"
          , "div.box":    "border: solid 1px #888; padding: 0 1ex;"
-         , "div.outline": "padding: 0 0 0 2ex;"
+         , "div.outline": "margin: 0 0 0 2ex; padding: 0 0 0 0ex;"
+         , "#formatted_body > div.outline": "margin-left: 0;"
          , "#toc a": "text-decoration: none;"
          , em: "font-style: normal; background-color: #ff0;"
          , tt: "background-color: #ddc;"
@@ -144,287 +285,529 @@ var easyLog = function (){
   }
 
 
-  function headingTag(hLevel, hId, hTitle){
-    //return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hLevel +': '+ hTitle + '</h' + hLevel + '>';
-    return '<h' + hLevel + ' id="' + hId + '"><a href="#' + hId + '">*</a>' + hTitle + '</h' + hLevel + '>';
-  }
+  function procInline(line){
+
+      if( line.match( /^http:\/\// ) ){
+        return '<a href="' + line + '">' + line + '</a>';
+      }else if( line.match( /^link:(.+)/ ) ){
+        var href = strip(RegExp.$1);
+        return '<a href="' + href + '">' + href + '</a>';
+      }else if(line.match( /^img: (.+)$/ )){
+        var src = strip(RegExp.$1);
+        return '<img src="' + RegExp.$1 + '" />';
+      }
 
 
-  function Stack(){
-    var stack = [];
-    this.push = function(value){ stack.push(value); };
-    this.pop = function(){ return stack.pop(); };
-    this.last = function(){ return stack[stack.length - 1]; };
-    this.length = function(){ return stack.length; };
-    this.at = function(n){ return stack[n]; };
-  }
-
+    var buf = line;
+    var result = "";
+    c = 0;
+    while(buf){
+      //console.log( c +": "+buf);
+      if(buf.match(/(^| )\*(.+?)\*($| )/)){
+        result += RegExp.leftContext ;
+        result += " <b>"+RegExp.$2+"</b> " ;
+        buf = RegExp.rightContext ;
+      }else if(buf.match(/(^| )_(.+?)_($| )/)){
+        result += RegExp.leftContext ;
+        result += " <em>"+RegExp.$2+"</em> " ;
+        buf = RegExp.rightContext ;
+      }else if(buf.match(/(^| )\+(.+?)\+($| )/)){
+        result += RegExp.leftContext ;
+        result += " <tt>"+RegExp.$2+"</tt> " ;
+        buf = RegExp.rightContext ;
+      }else{
+        result += buf;
+        break;
+      }
+      c++ ; if(c>5){ break;}
+    }
+    return result;
+  };
+  
   
   function Parser(){
     var stackTOC = new Stack();
     
     
-    var procInline = function(line){
-      var buf = line;
-      var result = "";
-      c = 0;
-      while(buf){
-        //console.log( c +": "+buf);
-        if(buf.match(/(^| )\*(.+?)\*($| )/)){
-          result += RegExp.leftContext ;
-          result += " <b>"+RegExp.$2+"</b> " ;
-          buf = RegExp.rightContext ;
-        }else if(buf.match(/(^| )_(.+?)_($| )/)){
-          result += RegExp.leftContext ;
-          result += " <em>"+RegExp.$2+"</em> " ;
-          buf = RegExp.rightContext ;
-        }else if(buf.match(/(^| )\+(.+?)\+($| )/)){
-          result += RegExp.leftContext ;
-          result += " <tt>"+RegExp.$2+"</tt> " ;
-          buf = RegExp.rightContext ;
+    var line2elem = function(line){
+      var elem = new Elem();
+
+      if(line.match( /^----/ )){
+        elem.type = "hr";
+        elem.content = "";
+      }else{
+        elem.content = line;
+      }
+
+      return elem;
+    };
+
+    
+    this.procUL = function(lines){
+      function getIndent(line){
+        var headSpace;
+        
+        if( line.match(/^( *)- /) ){
+          headSpace = RegExp.$1;
+          return headSpace.length + 2;
+
+        }else if( line.match(/^( *)/) ){
+          headSpace = RegExp.$1;
+          return headSpace.length;
+        }
+        throw "invalid indent";
+      }
+
+      var indent = 0; // トップレベルは0
+
+      var temp = [];
+
+      while(true){
+        var nextLine = lines[0];
+        
+        var nextIndent = getIndent(nextLine);
+        var isBlankLine = false;
+        if( nextIndent === null ){
+          isBlankLine = true;
+          nextIndent = indent;
+        }
+
+        if( indent === nextIndent ){ // 同じレベル
+          var line = lines.shift();
+          temp.push({ indent: nextIndent, line: line});
+
+        }else{ // 違うレベル
+          if(nextIndent === 0){
+            // UL終了
+            break;
+          }else if( nextIndent < indent ){
+            var line = lines.shift();
+            temp.push({ indent: nextIndent, line: line});
+            
+          }else if( indent < nextIndent ){
+            var line = lines.shift();
+            temp.push({ indent: nextIndent, line: line});
+
+          }else{
+            throw "must not happen";
+          }
+        }
+        indent = nextIndent;
+      }
+
+      // 末尾の空行を削除
+      while(true){
+        var last = temp.pop();
+        if( last.line.match( /^\s*$/ ) ){
+          lines = unshift(last.line, lines);
         }else{
-          result += buf;
+          temp.push(last);
           break;
         }
-        c++ ; if(c>5){ break;}
       }
-      return result;
+
+      var elem = new Elem();
+      elem.type = "pre";
+      elem.attr = {
+        "class": "ul"
+      };
+
+      elem.content =
+        temp
+        .map(function(e){
+               //return e.indent +":"+ e.line;
+               var line = e.line;
+               if( line.match(/^( *(- )*)(.+)/) ){
+                 return RegExp.$1 + procInline(RegExp.$3);
+               }else{
+                 return line;
+               }
+             })
+        .join("\n")
+      ;
+
+      return {
+        elem: elem
+        , lines: lines
+      };
     };
     
     
-    this.procPreamble = function(lines){
-      var preamble_range = 20;
-      for(var a=0; a<preamble_range; a++){
-        if(!lines[a]){ continue; }
-        if(lines[a].match(/^title:(.+)/) ){
-          self.docTitle = RegExp.$1;
-          delete lines[a];
-        }else if(lines[a].match(/^by:(.+)/) ){
-          self.by = RegExp.$1;
-          delete lines[a];
-        }else if(lines[a].match(/^date:(.+)/) ){
-          self.date = RegExp.$1;
-          delete lines[a];
+    this.procPRE = function(lines){
+      function isIndented(line){
+        return line.match(/^\s/);
+      }
+
+      var indent = 0; // トップレベルは0
+      var temp = [];
+
+      while(true){
+        var nextLine = lines[0];
+        
+        if( ! isIndented(nextLine) ){
+          break;
         }
+
+        var line = lines.shift();
+        temp.push(line);
       }
+
+      var elem = new Elem(
+        "pre"
+        , temp
+        .map(function(e){ return e; })
+        .join("\n")
+      );
+      elem.attr = {
+        "class": "indentBlock prettyprint"
+      };
+
+      return {
+        elem: elem
+        , lines: lines
+      };
     };
     
     
-    this.parse = function(text){
-      var result = "";
-      var lines = text.split( "\n" );
+    this.parseMain = function(lines){
+      var node = { list: [] };
+      var result = [];
       
-      this.procPreamble(lines);
-   
       var l = null
       , status = null;
-      for(var b in lines){
-        l = lines[b];
-        status = null;
-    
-        if(l.match(/^\s/)){ indentLine = true;  status = "pre";
-        }else{              indentLine = false;
+      while(lines.length > 0){
+        l = lines.shift();
+
+        if( ! l ){
+          var elem = new Elem();
+          elem.content = null;
+          node.list.push(elem);
+          
+        }else if( l.match(/^- (.+)/ )){
+          var x = this.procUL( unshift(l, lines) );
+          var elem = x.elem;
+          lines = x.lines;
+          node.list.push(elem);
+        }else if( l.match(/^\s/ )){
+          var x = this.procPRE( unshift(l, lines) );
+          var elem = x.elem;
+          lines = x.lines;
+          node.list.push(elem);
+        }else if( l.match( /^b\{-*$/ ) ){
+          node.list.push( new Elem(null, '<div class="box">') );
+        }else if( l.match( /^\}b-*$/ ) ){
+          node.list.push( new Elem(null, "</div>") );
+        }else if( l.match( /^q\{-*$/ ) ){
+          node.list.push( new Elem(null, "<blockquote>") );
+        }else if( l.match( /^\}q-*$/ ) ){
+          node.list.push( new Elem(null, "</blockquote>") );
+        }else{
+          node.list.push( line2elem(l) );
         }
-        
-        if( indentLineOld == false && indentLine == true ){
-          result += '<pre class="indentBlock prettyprint">';
-        }
-        if( indentLineOld == true && indentLine == false ){
-          result += '</pre>';
-        }
-    
-        if(l.match(/^----/)){ 
-          l = "<hr />";
-          status = "hr";
-        }else if( l.match( /^https?\:\/\// ) ){
-          l = "<a href='"+ l +"'>"+ l +"</a>";
-          status = "a";
-        }else if( l.match( /^link:/ ) ){
-          l = "<a href='"+ RegExp.rightContext +"'>"+ RegExp.rightContext +"</a>";
-          status = "a";
-        }else if( l.match( /^img:(.+)$/ ) ){
-          l = '<img src="' + RegExp.$1 + '" />';
-          status = "img";
-        }
-    
-        if(       l.match( /^b\{-*$/ ) ){ l = '<div class="box">';
-        }else if( l.match( /^\}b-*$/ ) ){ l = '</div>';
-        }
-        if(       l.match( /^q\{-*$/ ) ){ l = "<blockquote>";
-        }else if( l.match( /^\}q-*$/ ) ){ l = "</blockquote>";
-        }
-    
-        var hLevel = null;
-        var hTitle = null;
-        if      (l.match(/^======(.+?)=*$/)){ hLevel = 6; hTitle = RegExp.$1;
-        }else if(l.match(/^=====(.+?)=*$/ )){ hLevel = 5; hTitle = RegExp.$1;
-        }else if(l.match(/^====(.+?)=*$/  )){ hLevel = 4; hTitle = RegExp.$1;
-        }else if(l.match(/^===(.+?)=*$/   )){ hLevel = 3; hTitle = RegExp.$1;
-        }else if(l.match(/^==(.+?)=*$/    )){ hLevel = 2; hTitle = RegExp.$1;
-        }else if(l.match(/^=(.+?)=*$/     )){ hLevel = 1; hTitle = RegExp.$1;
-        }
-        if(hLevel){
-          hId = "heading" + stackTOC.length();
-          if(outlineLevel < hLevel){
-            for(var c=( - outlineLevel + hLevel); c>0; c--){
-              result += outlineBeginTag;
-            }
-            result += headingTag(hLevel, hId, hTitle);
-          }else if(outlineLevel > hLevel){
-            for(var c=(outlineLevel - hLevel); c>=0; c--){
-              result += outlineEndTag;
-            }
-            result += outlineBeginTag;
-            result += headingTag(hLevel, hId, hTitle);
-          }else if(outlineLevel == hLevel){
-            result += outlineEndTag;
-            result += outlineBeginTag;
-            result += headingTag(hLevel, hId, hTitle);
-          }
-    
-          stackTOC.push(
-            { "level": hLevel, "title": hTitle, "id": hId }
-          );
-          status = "heading";
-          outlineLevel = hLevel;
-        }
-        
-        if(status == null){
-          l = procInline(l);
-        }
-    
-        if(status != "heading"){ 
-          if( indentLine ){ l = l.replace( /^\s/, '' ); }
-          result += l;
-        }
-        if(status != "heading" && status != "hr"){
-          result += "\n"; 
-        }
-        
-        indentLineOld = indentLine;
       }
-      for(var b=outlineLevel; b>=0; b--){
-        result += '</div>';
-      }
-      
-      return result;
+
+      return { node: node };
     };
-    
-    
-    this.makeTOC = function(){
-      var levelOld = 0;
-      var levelNow = 0;
-      var result = "";
-      
-      for(var a=0; a<stackTOC.length(); a++){
-        levelNow = stackTOC.at(a).level;
-        
-        if(levelOld < levelNow){
-          for(var b=levelNow - levelOld; b>0; b--){
-            result += '<ul id="toc_list">';
-          }
-        }
-        if(levelOld > levelNow){
-          for(var b=levelOld - levelNow; b>0; b--){
-            result += "</ul>\n";
-          }
-        }
-        
-        result += '<li><a href="#' + stackTOC.at(a).id + '">';
-        result += stackTOC.at(a).title;
-        result += '</a></li>\n';
-        
-        levelOld = levelNow;
-      }
-      for(var b=levelOld; b>0; b--){
-        result += "</ul>\n";
-      }
-      
-      return result;
+
+
+    this.parse = function(text){
+      var lines =  text.split( "\n" ) ;
+   
+      var result = this.parseMain( lines );
+      return result.node;
     };
   }
 
 
-  /////////////////////////////////////////////////////////////////////////////////
+  function OutlineParser(){
+    this.parse = function(src){
+      var lines = src.split("\n");
+      var level = 0;
+      var oldLevel = level;
+      var index = 1;
 
-  var indentLine, indentLineOld;
-  var outlineLevel = 0;
-  var outlineBeginTag = '<div class="outline">';
-  var outlineEndTag   = '</div>';
+      var root = {
+        title: null
+        , parent: null
+        , children: []
+        , level: level
+      };
+      var target = root;
+
+      var buf = [];
+      while(lines.length > 0){
+        var line = lines.shift();
+
+        if(line.match(/^=/)){
+          if(buf.length > 0){
+            target.children.push(buf.join("\n"));
+            buf = [];
+          }
+
+          var head = this.procHn(line);
+          var diff = head.level - oldLevel;
+          oldLevel = head.level;
+
+          if(0 < diff){
+            for(var a=0; a<diff; a++){
+              target = this.makeBlock(target, null);
+            }
+            target.title = head.content;
+            target.level = head.level;
+            target.index = index; index++;
+          }else if(diff < 0){
+            for(var a=0; a<-diff+1; a++){
+              target = target.parent;
+            }
+            target = this.makeBlock(target, head.content);
+            target.level = head.level;
+            target.index = index; index++;
+          }else{
+            target = this.makeBlock(target.parent, head.content);
+            target.level = head.level;
+            target.index = index; index++;
+          }
+        }else{
+          buf.push(line);
+        }
+      }
+      
+      if(buf.length > 0){
+        target.children.push(buf.join("\n"));
+      }
+      
+      return root;
+    };
+
+    this.procHn = function(line){
+      if(line.match(/^(=+)([^=]+)=*$/)){
+        return {
+          level: RegExp.$1.length
+          , content: RegExp.$2
+        };
+      }else{
+        return null;
+      }
+    };
+
+    this.makeBlock = function(parent, title){
+      var block = {
+        title: title
+        , parent: parent
+        , children: []
+      };
+      parent.children.push(block);
+      return block;
+    };
+
+    this.toHTMLElement = function(block){
+      var elem = createElement(
+        null
+        , "div"
+        , { "class": "outline" }
+      );
+
+      if( block.children ){
+        if( block.title ){
+          var head = createElement(
+            elem, "h" + block.level
+            , { id: "heading" + block.index }, {}
+          );
+
+          var link = createElement(
+            head, "a"
+            , { href: "#heading" + block.index }, {}
+            , "*"
+          );
+          var title = document.createTextNode(block.title);
+          head.appendChild(title);
+        }
+
+        for(var a=0; a<block.children.length; a++){
+          var kid = block.children[a];
+          elem.appendChild(this.toHTMLElement(kid));
+        }
+      }else{
+        var src = block;
+        var parser = new Parser();
+        var parsed = parser.parse(src);
+        var html = markup(parsed);
+        elem.innerHTML = html;
+      }
+      
+      return elem;
+    };
+  }
+
+
+  function markup(doc){
+    var result = "";
+    var list = doc.list;
+
+    for(var a=0; a<list.length; a++){
+      var elem = list[a];
+      var temp = elem.toHtml();
+      result += temp;
+
+      if( temp === '<div class="box">'
+          || temp === '<blockquote>'
+        ){
+          //
+        }else{
+          //result += "<br />";
+          result += "\n";
+        }
+    }
+
+    return result;
+  }
+
+
+  function formatDate(date){
+    function fmt(n){
+      return "" + (n<10 ? "0" + n : n);
+    }
+
+    var y = date.getFullYear();
+    var m = date.getMonth()+1;
+    var d = date.getDate();
+    var h = date.getHours();
+    var min = date.getMinutes();
+    return y
+      + "-" + fmt(m)
+      + "-" + fmt(d)
+      + " " + fmt(h)
+      + ":" + fmt(min);
+  }
+
+
+  function splitPreamble(src){
+    var lines = src.split("\n");
+    var info = {};
+    var preamble_range = 20;
+      for(var a=0; a<preamble_range; a++){
+        if(!lines[a]){ continue; }
+        if(lines[a].match(/^title:(.+)/) ){
+          info.title = RegExp.$1;
+          delete lines[a];
+        }else if(lines[a].match(/^by:(.+)/) ){
+          info.by = RegExp.$1;
+          delete lines[a];
+        }else if(lines[a].match(/^date:(.+)/) ){
+          info.date = RegExp.$1;
+          delete lines[a];
+        }
+      }
+
+    var _lines = [];
+    for(var a=0; a<lines.length; a++){
+      var line = lines[a];
+      typeof line !== "undefined" && _lines.push(line);
+    }
+
+    return {
+      info: info
+      , body: _lines.join("\n")
+    };
+  }
+
+
+  function makePreamble(info){
+    var lines = [];
+    info.by && lines.push( "by: " + info.by);
+    info.date && lines.push( "date: " + info.date );
+    lines.push( "last modified: " + formatDate(new Date(document.lastModified)) );
+
+    var preamble = createElement(
+      null, "pre"
+      , { "class": "preamble" }, {}
+      , lines.join("\n")
+    );
+
+    return preamble;
+  }
+
+
+  function getTitle(info){
+    var title = "untitled";
+    if(info.title){
+      title = info.title;
+      info.by && (title += " by " + info.by);
+      info.date && (title += " (" + info.date + ")");
+    }
+
+    return title;
+  }
+
+  
+  ////////////////////////////////
+
 
   function main(){
     var self = this;
     
     var bodyElem = document.body;
-    var article  = document.getElementsByName("article")[0];
-    var mainBox = document.createElement("div");
-    mainBox.id = "main_box";
+    var articleElem  = document.getElementsByName("article")[0];
+    var mainBox = createElement(
+      null, "div", { id: "main_box" }
+    );
 
-    var parser = new Parser();
-    var result = parser.parse(article.innerHTML);
+    var src = articleElem.innerHTML;
+    var article = splitPreamble(src);
 
-    article.style.display = "none";
-    var formatted = document.createElement("pre");
-    formatted.id = "formatted_body";
-    formatted.innerHTML = result;
-    var formattedSrc = document.createElement("textarea");
-    formattedSrc.id = "formatted_body";
-    formattedSrc.innerHTML = result;
+    var olParser = new OutlineParser();
+    var outline = olParser.parse(article.body);
+    var result = olParser.toHTMLElement(outline);
     
-    var toc = document.createElement("div");
-    toc.id = "toc";
-    toc.innerHTML = parser.makeTOC();
+    articleElem.style.display = "none";
+
+    var formatted = createElement(
+      null, "pre", { id: "formatted_body" }, {}, result.innerHTML
+    );
+
+    var formattedSrc = createElement(
+      null, "textarea", { id: "formatted_src" }, {}
+      , result.innerHTML
+    );
+    
+    // TOC
+    var toc = createElement(
+      null, "div", { id: "toc" }, {}
+      , makeTOC(outline)
+    );
     insertAsFirstChild(bodyElem, toc);
-    
+
     // Page title
-    var titleP = document.createElement("p");
-    if(self.docTitle){
-      var temp = this.docTitle;
-      if(self.by){
-        temp += " by " + self.by;
-      }
-      titleP.id = "document_title";
-      titleP.innerHTML = temp;
-      
-      if(self.date){
-        temp += " (" + date + ")" ;
-      }
-      
-      document.title = temp;
+    var titleElem = null;
+    if(article.info.title){
+      titleElem = createElement(
+        null, "div"
+        , { id: "document_title" }, {}
+        , article.info.title
+      );
     }
 
-    // Index of emphatic text
-    var emReference = "";
-    var emphasis = xtag(formatted, "em");
-    var emRefElem = null;
-    if(emphasis.length > 0){
-      for(var a=0;a<emphasis.length; a++){
-        var id = "emphasis_" + a;
-        emphasis[a].id = id;
-        emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n';
-      }
-      emReference = "<ul>" + emReference + "</ul>";
-      emReference = "<h1>Index of emphatic texts</h1>" + emReference;
-      
-      emRefElem = document.createElement("div");
-      emRefElem.id = "emphasis_index";
-      emRefElem.innerHTML = emReference;
-      
-      // add to TOC
-      var temp = document.createElement("li");
-      temp.innerHTML = '<a href="#emphasis_index">Index of emphatic texts</a>';
-      document.getElementById("toc_list").appendChild(temp);
-    }
-    
+    document.title = getTitle(article.info);
+
+    var emRefElem = makeEMIndex(formatted);
     if(emRefElem){
       insertAsFirstChild(mainBox, emRefElem);
     }
     insertAsFirstChild(mainBox, formattedSrc);
     insertAsFirstChild(mainBox, formatted);
-    if(self.docTitle){
-      insertAsFirstChild(mainBox, titleP);
+    insertAsFirstChild(mainBox, makePreamble(article.info));
+
+    if(titleElem){
+      insertAsFirstChild(mainBox, titleElem);
     }
     insertAsFirstChild(bodyElem, mainBox);
+  }
+
+  function test(){
+    function puts(){ console.log(arguments); }
+    var op = new OutlineParser();
+    var x = op.parse( document.getElementById("src").textContent );
+    puts(x);
   }
   
   main();
@@ -433,6 +816,4 @@ var easyLog = function (){
 };
 
 
-if(navigator.userAgent.indexOf("MSIE") == -1){
-  window.addEventListener( "load", easyLog, true );
-}
+window.addEventListener( "load", easyLog, true );
