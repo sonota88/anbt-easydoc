@@ -239,6 +239,20 @@ function makeEMIndex(formatted){
     return str.replace( /^[\s\t\n\r\n]+/, "" ).replace( /[\s\t\r\n]+$/, "" );
   }
 
+
+  function multiplyString(str, n){
+    return new Array(n+1).join(str);
+  }
+
+
+  function expandTabs(str){
+    return str.replace(
+        /	/g
+      , multiplyString(" ", 8)
+    );
+  }
+
+
   ////////////////////////////////
 
 
@@ -433,6 +447,36 @@ function makeEMIndex(formatted){
     };
     
     
+    this.getMinHeadSpacesSize = function(lines){
+      var firstLine = expandTabs(lines[0]);
+      firstLine.match(/^( +)/);
+      var minSpaces = RegExp.$1.length;
+
+      for(var a=0; a<lines.length; a++){
+        var line = expandTabs(lines[a]);
+        if(line.match(/^(\s+)/)){
+          var length = RegExp.$1.length;
+          if(length < minSpaces){
+            minSpaces = length;
+          }
+        }
+      }
+      return minSpaces;
+    };
+
+
+    this.eliminateHeadSpaces = function(lines){
+      var minSpacesLength = this.getMinHeadSpacesSize(lines);
+      var headSpaces = new Array(minSpacesLength+1).join(" ");
+      var headSpacesRE = new RegExp("^" + headSpaces);
+      return lines
+        .map(function(line){
+               return expandTabs(line)
+                 .replace(headSpacesRE, "");
+             });
+    };
+
+    
     this.procPRE = function(lines){
       function isIndented(line){
         return line.match(/^\s/);
@@ -454,9 +498,7 @@ function makeEMIndex(formatted){
 
       var elem = new Elem(
         "pre"
-        , temp
-        .map(function(e){ return e; })
-        .join("\n")
+        , this.eliminateHeadSpaces(temp).join("\n")
       );
       elem.attr = {
         "class": "indentBlock prettyprint"
