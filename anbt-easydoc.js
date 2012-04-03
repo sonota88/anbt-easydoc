@@ -467,7 +467,7 @@ function makeEMIndex(formatted){
 
     this.eliminateHeadSpaces = function(lines){
       var minSpacesLength = this.getMinHeadSpacesSize(lines);
-      var headSpaces = new Array(minSpacesLength+1).join(" ");
+      var headSpaces = multiplyString(" ", minSpacesLength);
       var headSpacesRE = new RegExp("^" + headSpaces);
       return lines
         .map(function(line){
