@@ -302,7 +302,7 @@ function makeEMIndex(formatted){
 
   function procInline(line){
 
-      if( line.match( /^http:\/\// ) ){
+      if( line.match( /^(https?|file):\/\// ) ){
         return '<a href="' + line + '">' + line + '</a>';
       }else if( line.match( /^link:(.+)/ ) ){
         var href = strip(RegExp.$1);
