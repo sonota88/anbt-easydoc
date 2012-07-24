@@ -295,6 +295,7 @@ function makeEMIndex(formatted){
          , "a": "color: #004477;"
          , "a:visited": "color: #660000;"
          , "a:hover": "color: #dd0000;"
+         , "#formatted_src": "width: 100%; height: 200px; display: none;"
     });
   }
 
@@ -811,6 +812,17 @@ function makeEMIndex(formatted){
       null, "textarea", { id: "formatted_src" }, {}
       , result.innerHTML
     );
+    var showFormattedSrcButton = createElement(
+      null, "input"
+      , { id: "formatted_src_button"
+          , value: "show HTML source"
+          , type: "button" }
+      , null, null
+    );
+    showFormattedSrcButton.addEventListener(
+      "click"
+      , function(){ formattedSrc.style.display = "block"; }
+      , false);
     
     // TOC
     var toc = createElement(
@@ -836,6 +848,7 @@ function makeEMIndex(formatted){
       insertAsFirstChild(mainBox, emRefElem);
     }
     insertAsFirstChild(mainBox, formattedSrc);
+    insertAsFirstChild(mainBox, showFormattedSrcButton);
     insertAsFirstChild(mainBox, formatted);
     insertAsFirstChild(mainBox, makePreamble(article.info));
 
