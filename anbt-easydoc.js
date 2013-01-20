@@ -80,102 +80,102 @@ var easyLog = function (){
 
   
 
-function Elem(type, content){
-  this.type = type;
-  this.list = [];
-  this.content = content;
-}
-Elem.prototype = {
-  toHtml: function(){
-    if( ! this.type ){
-      return this.content ? procInline(this.content) : "";
-    }
-
-    var attr = "";
-    if(this.attr){
-      for(var k in this.attr){
-        var v = this.attr[k];
-        attr += " " + k + "='" + v + "'";
+  function Elem(type, content){
+    this.type = type;
+    this.list = [];
+    this.content = content;
+  }
+  Elem.prototype = {
+    toHtml: function(){
+      if( ! this.type ){
+        return this.content ? procInline(this.content) : "";
       }
+
+      var attr = "";
+      if(this.attr){
+        for(var k in this.attr){
+          var v = this.attr[k];
+          attr += " " + k + "='" + v + "'";
+        }
+      }
+
+      return "<" + this.type + " "
+        + attr
+        + " >"
+        + this.content
+        + "</" + this.type + ">";
+    }
+  };
+
+
+  function isundef(it){
+    return typeof it === "undefined";
+  }
+
+
+  function makeTOC(outline){
+    if(typeof outline.children === "undefined"
+       || outline === null
+       || typeof outline === "string"
+      ){
+      return "";
     }
 
-    return "<" + this.type + " "
-      + attr
-      + " >"
-      + this.content
-      + "</" + this.type + ">";
-  }
-};
-
-
-function isundef(it){
-  return typeof it === "undefined";
-}
-
-
-function makeTOC(outline){
-  if(typeof outline.children === "undefined"
-     || outline === null
-     || typeof outline === "string"
-    ){
-    return "";
-  }
-  
-  var src = "";
-  if( ! isundef(outline.title) && outline.title != null ){
-    var anchor = "#heading" + outline.index;
-    var link = '<a href="' + anchor + '">' + outline.title + '</a>';
-    src += "<li>" + link + "</li>\n";
-  }
-
-
-  var kids = outline.children;
-  src += "<ul>";
-  for(var a=0; a<kids.length; a++){
-    var kid = kids[a];
-    if(typeof kid === "string"){ continue; }
-
-    var temp = makeTOC(kid);
-     if(temp.length > 0){
-       src += temp;
-     }
-  }
-  src += "</ul>";
-
-  return src;
-}
-
-
-function makeEMIndex(formatted){
-  // Index of emphatic text
-  var emReference = "";
-  var emphasis = xtag(formatted, "em");
-  var emRefElem = null;
-  if(emphasis.length > 0){
-    for(var a=0;a<emphasis.length; a++){
-      var id = "emphasis_" + a;
-      emphasis[a].id = id;
-      emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n';
+    var src = "";
+    if( ! isundef(outline.title) && outline.title != null ){
+      var anchor = "#heading" + outline.index;
+      var link = '<a href="' + anchor + '">' + outline.title + '</a>';
+      src += "<li>" + link + "</li>\n";
     }
-    emReference = "<ul>" + emReference + "</ul>";
-    emReference = "<h1>Index of emphatic texts</h1>" + emReference;
 
-    emRefElem = createElement(
-      null, "div"
-      , { id: "emphasis_index" }, {}
-      , emReference
-    );
 
-    // add to TOC
-    var temp = createElement(
-      document.getElementById("toc").childNodes[0]
-      , "li", {}, {}
-      , '<a href="#emphasis_index">Index of emphatic texts</a>'
-    );
+    var kids = outline.children;
+    src += "<ul>";
+    for(var a=0; a<kids.length; a++){
+      var kid = kids[a];
+      if(typeof kid === "string"){ continue; }
+
+      var temp = makeTOC(kid);
+       if(temp.length > 0){
+         src += temp;
+       }
+    }
+    src += "</ul>";
+
+    return src;
   }
-  
-  return emRefElem;
-}
+
+
+  function makeEMIndex(formatted){
+    // Index of emphatic text
+    var emReference = "";
+    var emphasis = xtag(formatted, "em");
+    var emRefElem = null;
+    if(emphasis.length > 0){
+      for(var a=0;a<emphasis.length; a++){
+        var id = "emphasis_" + a;
+        emphasis[a].id = id;
+        emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n';
+      }
+      emReference = "<ul>" + emReference + "</ul>";
+      emReference = "<h1>Index of emphatic texts</h1>" + emReference;
+
+      emRefElem = createElement(
+        null, "div"
+        , { id: "emphasis_index" }, {}
+        , emReference
+      );
+
+      // add to TOC
+      var temp = createElement(
+        document.getElementById("toc").childNodes[0]
+        , "li", {}, {}
+        , '<a href="#emphasis_index">Index of emphatic texts</a>'
+      );
+    }
+
+    return emRefElem;
+  }
 
 
   ////////////////////////////////
