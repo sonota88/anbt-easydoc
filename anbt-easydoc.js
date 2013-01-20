@@ -254,6 +254,68 @@ var easyLog = function (){
 
 
   ////////////////////////////////
+  
+
+  var jsonTable = (function(){
+    function toHtml(plain){
+      return (""+plain).replace(/\n/g, "<br />");
+    }
+
+    function jsonToTableForArray(rows){
+      var table = createElement(null, "table", {"class": "from_json"});
+      for(var a=0, lenA=rows.length; a<lenA; a++){
+        var row = rows[a];
+        var tr = createElement(table, "tr");
+        for(var b=0, lenB=row.length; b<lenB; b++){
+          var col = row[b];
+          createElement(tr, "td", null, null, toHtml(col));
+        }
+      }
+      return table;
+    }
+
+    function jsonToTableForObject(rows){
+      var table = createElement(null, "table", {"class": "from_json"});
+      var colNames = rows[0];
+
+      var tr = createElement(table, "tr");
+      for(var a=0, lenA=colNames.length; a<lenA; a++){
+        var colName = colNames[a];
+        createElement(tr, "td", null, null, toHtml(colName));
+      }
+
+      var row;
+      for(var b=1, lenB=rows.length; b<lenB; b++){
+        row = rows[b];
+        tr = createElement(table, "tr");
+        for(var c=0, lenC=colNames.length; c<lenC; c++){
+          var colName = colNames[c];
+          var col = row[colName];
+          createElement(tr, "td", null, null, toHtml(col));
+        }
+      }
+      return table;
+    }
+
+
+    function jsonToTable(json){
+      var rows = JSON.parse(json);
+      var isArray = (rows[1] instanceof Array);
+
+      if(isArray){
+        return jsonToTableForArray(rows);
+      }else{
+        return jsonToTableForObject(rows);
+      }
+    }
+
+    return {
+      jsonToTable: jsonToTable
+    };
+  })();
+
+
+  ////////////////////////////////
 
 
   function applyDefaultCSS(){
@@ -287,6 +349,8 @@ var easyLog = function (){
          , "div.box":    "border: solid 1px #888; padding: 0 1ex;"
          , "div.outline": "margin: 0 0 0 2ex; padding: 0 0 0 0ex;"
          , "#formatted_body > div.outline": "margin-left: 0;"
+         , "table": "border-collapse: collapse;"
+         , "td": "border: solid 1px #aaa; font-size: 90%; padding: 0 0.5rem;"
          , "#toc a": "text-decoration: none;"
          , em: "font-style: normal; background-color: #ff0;"
          , tt: "background-color: #ddc;"
@@ -317,7 +381,6 @@ var easyLog = function (){
     var result = "";
     c = 0;
     while(buf){
-      //console.log( c +": "+buf);
       if(buf.match(/(^| )\*(.+?)\*($| )/)){
         result += RegExp.leftContext ;
         result += " <b>"+RegExp.$2+"</b> " ;
@@ -510,7 +573,31 @@ var easyLog = function (){
         , lines: lines
       };
     };
-    
+
+    function procTABLE(lines){
+      lines.shift();
+      
+      var _lines = [];
+
+      var line;
+      while(lines.length > 0){
+        line = lines.shift();
+        if( line.match(/^\}t-*$/) ){
+          break;
+        }else{
+          _lines.push(line);
+        }
+      }
+
+      var json = _lines.join("\n");
+      var table = jsonTable.jsonToTable(json);
+      var elem = new Elem("div", table.outerHTML );
+
+      return {
+        elem: elem
+        , lines: lines
+      };
+    }
     
     this.parseMain = function(lines){
       var node = { list: [] };
@@ -533,6 +620,11 @@ var easyLog = function (){
           node.list.push(elem);
         }else if( l.match(/^\s/ )){
           var x = this.procPRE( unshift(l, lines) );
+          var elem = x.elem;
+          lines = x.lines;
+          node.list.push(elem);
+        }else if( l.match(/^t\{-*$/ )){
+          var x = procTABLE( unshift(l, lines) );
           var elem = x.elem;
           lines = x.lines;
           node.list.push(elem);
