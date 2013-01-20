@@ -486,7 +486,7 @@ function makeEMIndex(formatted){
       var indent = 0; // トップレベルは0
       var temp = [];
 
-      while(true){
+      while(lines.length > 0){
         var nextLine = lines[0];
         
         if( ! isIndented(nextLine) ){
