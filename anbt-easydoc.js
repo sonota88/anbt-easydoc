@@ -379,8 +379,7 @@ var easyLog = function (){
 
     var buf = line;
     var result = "";
-    c = 0;
-    while(buf){
+    while(buf.length > 0){
       if(buf.match(/(^| )\*(.+?)\*($| )/)){
         result += RegExp.leftContext ;
         result += " <b>"+RegExp.$2+"</b> " ;
@@ -394,10 +393,9 @@ var easyLog = function (){
         result += " <tt>"+RegExp.$2+"</tt> " ;
         buf = RegExp.rightContext ;
       }else{
-        result += buf;
-        break;
+        result += buf.substring(0, 1);
+        buf = buf.substring(1, buf.length);
       }
-      c++ ; if(c>5){ break;}
     }
     return result;
   };
