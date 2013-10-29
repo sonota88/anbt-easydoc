@@ -131,7 +131,7 @@ var easyLog = function (){
 
     var kids = outline.children;
     src += "<ul>";
-    for(var a=0; a<kids.length; a++){
+    for(var a=0,len=kids.length; a<len; a++){
       var kid = kids[a];
       if(typeof kid === "string"){ continue; }
 
@@ -152,7 +152,7 @@ var easyLog = function (){
     var emphasis = xtag(formatted, "em");
     var emRefElem = null;
     if(emphasis.length > 0){
-      for(var a=0;a<emphasis.length; a++){
+      for(var a=0,len=emphasis.length; a<len; a++){
         var id = "emphasis_" + a;
         emphasis[a].id = id;
         emReference += '<li><a href="#' + id + '">' + emphasis[a].innerHTML + '</a></li>\n';
@@ -228,7 +228,7 @@ var easyLog = function (){
 
   function unshift(first, arr){
     var x = [ first ];
-    for(var a=0; a<arr.length; a++){
+    for(var a=0,len=arr.length; a<len; a++){
       x.push(arr[a]);
     }
     return x;
@@ -516,7 +516,7 @@ var easyLog = function (){
       firstLine.match(/^( +)/);
       var minSpaces = RegExp.$1.length;
 
-      for(var a=0; a<lines.length; a++){
+      for(var a=0,len=lines.length; a<len; a++){
         var line = expandTabs(lines[a]);
         if(line.match(/^(\s+)/)){
           var length = RegExp.$1.length;
@@ -758,7 +758,7 @@ var easyLog = function (){
           head.appendChild(title);
         }
 
-        for(var a=0; a<block.children.length; a++){
+        for(var a=0,len=block.children.length; a<len; a++){
           var kid = block.children[a];
           elem.appendChild(this.toHTMLElement(kid));
         }
@@ -779,7 +779,7 @@ var easyLog = function (){
     var result = "";
     var list = doc.list;
 
-    for(var a=0; a<list.length; a++){
+    for(var a=0,len=list.length; a<len; a++){
       var elem = list[a];
       var temp = elem.toHtml();
       result += temp;
@@ -835,7 +835,7 @@ var easyLog = function (){
       }
 
     var _lines = [];
-    for(var a=0; a<lines.length; a++){
+    for(var a=0,len=lines.length; a<len; a++){
       var line = lines[a];
       typeof line !== "undefined" && _lines.push(line);
     }
