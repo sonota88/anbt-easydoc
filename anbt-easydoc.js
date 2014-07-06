@@ -469,6 +469,10 @@ var easyLog = function (){
           }
         }
         indent = nextIndent;
+
+        if(lines.length === 0){
+          break; // UL終了
+        }
       }
 
       // 末尾の空行を削除
