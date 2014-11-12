@@ -235,6 +235,15 @@ var easyLog = function (){
   }
 
 
+  function tail(list){
+    var result = [];
+    for(var i=1,len=list.length; i<len; i++){
+      result.push(list[i]);
+    }
+    return result;
+  }
+
+
   function strip(str){
     return str.replace( /^[\s\t\n\r\n]+/, "" ).replace( /[\s\t\r\n]+$/, "" );
   }
@@ -551,7 +560,6 @@ var easyLog = function (){
       var indent = 0; // トップレベルは0
       var temp = [];
 
-      lines.shift();
       while(lines.length > 0){
         var nextLine = lines[0];
         
@@ -622,7 +630,7 @@ var easyLog = function (){
           lines = x.lines;
           node.list.push(elem);
         }else if( l.match(/^\s+## src ##$/ )){
-          var x = this.procPRE( unshift(l, lines) );
+          var x = this.procPRE(lines);
           var elem = x.elem;
           lines = x.lines;
           node.list.push(elem);
