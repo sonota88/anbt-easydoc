@@ -551,6 +551,7 @@ var easyLog = function (){
       var indent = 0; // トップレベルは0
       var temp = [];
 
+      lines.shift();
       while(lines.length > 0){
         var nextLine = lines[0];
         
@@ -620,7 +621,7 @@ var easyLog = function (){
           var elem = x.elem;
           lines = x.lines;
           node.list.push(elem);
-        }else if( l.match(/^\s/ )){
+        }else if( l.match(/^\s+## src ##$/ )){
           var x = this.procPRE( unshift(l, lines) );
           var elem = x.elem;
           lines = x.lines;
